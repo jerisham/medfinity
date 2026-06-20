@@ -70,3 +70,11 @@ def search_medicines(request):
     )[:20]
     serializer = MedicineInventorySerializer(medicines, many=True)
     return Response(serializer.data)
+
+
+class InventoryDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = MedicineInventorySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return MedicineInventory.objects.filter(pharmacy=self.request.user)

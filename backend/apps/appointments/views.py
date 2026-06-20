@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from django.utils import timezone
 from django.db.models import Q
 from .models import Appointment, AppointmentSlot
-from .serializers import (AppointmentSerializer, AppointmentCreateSerializer, 
+from .serializers import (AppointmentSerializer, AppointmentCreateSerializer,
                           AppointmentSlotSerializer)
 
 class AppointmentListCreateView(generics.ListCreateAPIView):
@@ -20,12 +20,18 @@ class AppointmentListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
+        patient_id = self.request.query_params.get('patient_id')
+
         if user.user_type == 'doctor':
-            return Appointment.objects.filter(doctor=user)
+            qs = Appointment.objects.filter(doctor=user)
+            if patient_id:
+                qs = qs.filter(patient_id=patient_id)
+            return qs
         return Appointment.objects.filter(patient=user)
 
     def perform_create(self, serializer):
-        serializer.save(patient=self.request.user)
+        # patient is set inside AppointmentCreateSerializer.create()
+        serializer.save()
 
 
 class AppointmentDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -83,6 +89,23 @@ def cancel_appointment(request, pk):
         return Response({'error': 'Appointment not found'}, status=404)
 
 
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_appointment_status(request, pk):
+    """Allows doctors to update appointment status (e.g. completed, in_progress)."""
+    try:
+        appointment = Appointment.objects.get(pk=pk, doctor=request.user)
+        new_status = request.data.get('status')
+        valid_statuses = ['scheduled', 'confirmed', 'in_progress', 'completed', 'no_show']
+        if new_status not in valid_statuses:
+            return Response({'error': 'Invalid status'}, status=400)
+        appointment.status = new_status
+        appointment.save()
+        return Response({'message': 'Status updated', 'status': new_status})
+    except Appointment.DoesNotExist:
+        return Response({'error': 'Appointment not found'}, status=404)
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def upcoming_appointments(request):
@@ -93,14 +116,47 @@ def upcoming_appointments(request):
         appointments = Appointment.objects.filter(
             doctor=user,
             appointment_date__gte=today,
-            status__in=['scheduled', 'confirmed']
-        )
+            status__in=['scheduled', 'confirmed', 'in_progress']
+        ).order_by('appointment_date', 'appointment_time')
     else:
         appointments = Appointment.objects.filter(
             patient=user,
             appointment_date__gte=today,
-            status__in=['scheduled', 'confirmed']
-        )
+            status__in=['scheduled', 'confirmed', 'in_progress']
+        ).order_by('appointment_date', 'appointment_time')
 
     serializer = AppointmentSerializer(appointments, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def doctor_patients(request):
+    """Return the list of unique patients the doctor has had appointments with."""
+    user = request.user
+    if user.user_type != 'doctor':
+        return Response({'error': 'Only doctors can access this endpoint'}, status=403)
+
+    appointments = Appointment.objects.filter(doctor=user).select_related('patient')
+    seen = set()
+    patients = []
+    for appt in appointments:
+        p = appt.patient
+        if p.id not in seen:
+            seen.add(p.id)
+            patients.append({
+                'id': p.id,
+                'first_name': p.first_name,
+                'last_name': p.last_name,
+                'full_name': p.get_full_name(),
+                'email': p.email,
+                'phone': p.phone,
+                'blood_group': p.blood_group,
+                'allergies': p.allergies,
+                'chronic_conditions': p.chronic_conditions,
+                'date_of_birth': str(p.date_of_birth) if p.date_of_birth else None,
+                'last_visit': str(appt.appointment_date),
+                'total_visits': Appointment.objects.filter(doctor=user, patient=p).count(),
+            })
+
+    return Response(patients)

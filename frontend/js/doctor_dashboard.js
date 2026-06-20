@@ -18,13 +18,17 @@ const icon = (name, attrs='') => `<svg ${attrs} viewBox="0 0 24 24" fill="none" 
 
 if (document.getElementById('app')){
   const lastName = escapeHtml((user.name || user.last_name || '').split(' ').pop());
+  const params = new URLSearchParams(window.location.search);
+  const activeTab = params.get('tab') || 'dashboard';
+
   document.getElementById('app').innerHTML = `
-    ${renderSidebar('dashboard', 'doctor')}
+    ${renderSidebar(activeTab, 'doctor')}
     <main class="main">
       ${renderTopbar({
         title: `${greeting()}, Dr. ${lastName} 👋`,
         sub: "Here's your day at a glance — your patients are counting on you.",
-        user
+        user,
+        hideSearch: true
       })}
 
       <div class="bento" id="bento" style="grid-template-columns: 2fr 1.3fr 1.3fr;">
@@ -76,7 +80,7 @@ if (document.getElementById('app')){
               <div class="qa-row__icon" style="background:var(--green-tint);color:var(--emerald-hover);">${icon('video')}</div>
               <div><div class="qa-row__title">Start Video Consult</div><div class="qa-row__sub">Meet your next patient</div></div>
             </a>
-            <a class="qa-row" href="health_records.html">
+            <a class="qa-row" href="patient_records.html">
               <div class="qa-row__icon" style="background:var(--blue-tint);color:#3b6fd1;">${icon('records')}</div>
               <div><div class="qa-row__title">Patient Records</div><div class="qa-row__sub">Review medical history</div></div>
             </a>
@@ -103,6 +107,11 @@ if (document.getElementById('app')){
   `;
 
   loadDashboard();
+  if (activeTab === 'appointments') {
+    setTimeout(() => {
+      document.getElementById('apptTile')?.scrollIntoView({ behavior: 'smooth' });
+    }, 300);
+  }
   document.getElementById('markAllRead').addEventListener('click', async (e) => {
     e.preventDefault();
     try { await NotificationsAPI.markAllRead(); loadNotifications(); } catch (err){ showToast(err.message, 'error'); }
@@ -151,7 +160,9 @@ async function loadSchedule(){
       <div style="margin-top:12px;"><span class="badge badge--${a.status}">${a.status.replace('_',' ')}</span></div>
     `;
 
-    list.innerHTML = items.map(a => `
+    list.innerHTML = items.map(a => {
+      const showComplete = (a.status === 'scheduled' || a.status === 'confirmed' || a.status === 'in_progress');
+      return `
       <div class="list-row">
         <div class="list-row__icon">${icon('calendar')}</div>
         <div class="list-row__body">
@@ -159,7 +170,25 @@ async function loadSchedule(){
           <div class="list-row__meta">${formatDate(a.appointment_date)} · ${formatTime(a.appointment_time)} · ${a.appointment_type === 'video' ? 'Video' : 'In-person'}</div>
         </div>
         <span class="badge badge--${a.status}">${a.status.replace('_',' ')}</span>
-      </div>`).join('');
+        ${showComplete ? `<button class="btn btn--primary btn--sm" data-complete="${a.id}" style="margin-left:8px; font-size:11px; padding:4px 8px;">Complete</button>` : ''}
+      </div>`;
+    }).join('');
+
+    list.querySelectorAll('[data-complete]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Mark this appointment as completed?')) return;
+        btn.disabled = true;
+        try {
+          await AppointmentsAPI.updateStatus(btn.dataset.complete, 'completed');
+          showToast('Appointment completed!', 'success');
+          loadSchedule();
+          loadStats();
+        } catch (err) {
+          showToast(err.message, 'error');
+          btn.disabled = false;
+        }
+      });
+    });
   } catch {
     list.innerHTML = emptyState("Couldn't load schedule", 'Check that the backend is running.', icon('calendar'));
     preview.innerHTML = emptyState("Couldn't load", '', icon('calendar'));

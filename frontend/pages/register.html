@@ -9,7 +9,7 @@
 </head>
 <body>
   <div class="auth">
-    <div class="auth__card" style="max-width:480px;">
+    <div class="auth__card" style="max-width:500px;">
       <div class="auth__mark">M</div>
       <h1>Create your account</h1>
       <p class="sub">Care, coordinated in one place.</p>
@@ -43,6 +43,57 @@
             <option value="pharmacist">Pharmacist</option>
           </select>
         </div>
+
+        <!-- Doctor-only fields — shown when user_type = doctor -->
+        <div id="doctorFields" style="display:none;">
+          <div class="field">
+            <label for="specialization">Specialization</label>
+            <select id="specialization" name="specialization">
+              <option value="General">General Physician</option>
+              <option value="Cardiology">Cardiologist</option>
+              <option value="Dermatology">Dermatologist</option>
+              <option value="Neurology">Neurologist</option>
+              <option value="Orthopedics">Orthopedic Surgeon</option>
+              <option value="Pediatrics">Pediatrician</option>
+              <option value="Gynecology">Gynecologist</option>
+              <option value="Psychiatry">Psychiatrist</option>
+              <option value="ENT">ENT Specialist</option>
+              <option value="Ophthalmology">Ophthalmologist</option>
+              <option value="Urology">Urologist</option>
+              <option value="Oncology">Oncologist</option>
+              <option value="Endocrinology">Endocrinologist</option>
+              <option value="Pulmonology">Pulmonologist</option>
+              <option value="Gastroenterology">Gastroenterologist</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="license_number">Medical License Number</label>
+            <input id="license_number" name="license_number" placeholder="e.g. MCI-12345">
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="experience_years">Years of Experience</label>
+              <input id="experience_years" name="experience_years" type="number" min="0" max="60" placeholder="0">
+            </div>
+            <div class="field">
+              <label for="consultation_fee">Consultation Fee (₹)</label>
+              <input id="consultation_fee" name="consultation_fee" type="number" min="0" placeholder="500">
+            </div>
+          </div>
+        </div>
+
+        <!-- Pharmacy-only fields — shown when user_type = pharmacist -->
+        <div id="pharmacyFields" style="display:none;">
+          <div class="field">
+            <label for="pharmacy_name">Pharmacy Store Name</label>
+            <input id="pharmacy_name" name="pharmacy_name" placeholder="e.g. CareFirst Pharmacy">
+          </div>
+          <div class="field">
+            <label for="pharmacy_license">Pharmacy License Number</label>
+            <input id="pharmacy_license" name="pharmacy_license" placeholder="e.g. PH-987654">
+          </div>
+        </div>
+
         <div class="field">
           <label for="password">Password</label>
           <input id="password" name="password" type="password" autocomplete="new-password" required>
@@ -57,5 +108,14 @@
   <script src="../js/api.js"></script>
   <script src="../js/utils.js"></script>
   <script src="../js/auth.js"></script>
+  <script>
+    // Show/hide doctor/pharmacy-specific fields based on user type selection
+    document.getElementById('user_type').addEventListener('change', function() {
+      document.getElementById('doctorFields').style.display =
+        this.value === 'doctor' ? 'block' : 'none';
+      document.getElementById('pharmacyFields').style.display =
+        this.value === 'pharmacist' ? 'block' : 'none';
+    });
+  </script>
 </body>
 </html>

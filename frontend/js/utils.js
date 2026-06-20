@@ -9,7 +9,9 @@ function requireAuth(allowedTypes){
     return null;
   }
   if (allowedTypes && !allowedTypes.includes(user.user_type)){
-    const type = user.user_type === 'pharmacist' ? 'pharmacy' : user.user_type;
+    const type = user.user_type === 'pharmacist' ? 'pharmacy'
+               : user.user_type === 'caregiver'   ? 'patient'
+               : user.user_type;
     window.location.href = `/pages/${type}_dashboard.html`;
     return null;
   }
@@ -87,38 +89,34 @@ function emptyState(title, sub, iconSvg){
 function renderSidebar(activeKey, role){
   const links = {
     patient: [
-      ['dashboard', 'patient_dashboard.html', 'M3 11l9-8 9 8M5 10v10h14V10', 'Dashboard'],
-      ['book', 'book_appointment.html', 'M8 2v4M16 2v4M3 9h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z', 'Book Appointment'],
-      ['appointments', 'book_appointment.html', 'M8 2v4M16 2v4M3 9h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z', 'My Appointments'],
-      ['doctors', 'ai_chat.html', 'M16 11a4 4 0 10-8 0M2 21a8 8 0 0116 0', 'Doctors'],
-      ['prescriptions', 'health_records.html', 'M9 2h6l1 2h3v2H4V4h3l2-2zM6 8h12v12H6z', 'Prescriptions'],
-      ['pharmacy', 'pharmacy_dashboard.html', 'M21 8l-9-5-9 5 9 5 9-5z M3 8v8l9 5 9-5V8M12 13v8', 'Pharmacy'],
-      ['records', 'health_records.html', 'M3 12h4l3 8 4-16 3 8h4', 'Health Records'],
-      ['ai', 'ai_chat.html', 'M21 11.5a8.4 8.4 0 01-1.1 4.2L21 21l-5.4-1.4a8.5 8.5 0 11-1.6-12.1', 'Messages'],
+      ['dashboard',      'patient_dashboard.html', 'M3 11l9-8 9 8M5 10v10h14V10',                                                                  'Dashboard'],
+      ['appointments',   'appointments.html',       'M8 2v4M16 2v4M3 9h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z',       'Appointments'],
+      ['doctors',        'doctors.html',            'M16 11a4 4 0 10-8 0M2 21a8 8 0 0116 0',                                                         'Doctors'],
+      ['prescriptions',  'prescriptions.html',      'M9 2h6l1 2h3v2H4V4h3l2-2zM6 8h12v12H6zM9 12h6M9 16h4',                                         'Prescriptions'],
+      ['records',        'health_records.html',     'M3 12h4l3 8 4-16 3 8h4',                                                                        'Health Records'],
+      ['ai',             'ai_chat.html',            'M21 11.5a8.4 8.4 0 01-1.1 4.2L21 21l-5.4-1.4a8.5 8.5 0 11-1.6-12.1',                           'AI Chat'],
     ],
     doctor: [
-      ['dashboard', 'doctor_dashboard.html', 'M3 11l9-8 9 8M5 10v10h14V10', 'Dashboard'],
-      ['video', 'video_consult.html', 'M15 10l5-3v10l-5-3M3 6h12v12H3z', 'Video Consult'],
-      ['appointments', 'doctor_dashboard.html', 'M8 2v4M16 2v4M3 9h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z', 'Appointments'],
-      ['records', 'health_records.html', 'M9 2h6l1 2h3v2H4V4h3l2-2zM6 8h12v12H6z', 'Patient Records'],
-      ['ai', 'ai_chat.html', 'M21 11.5a8.4 8.4 0 01-1.1 4.2L21 21l-5.4-1.4a8.5 8.5 0 11-1.6-12.1', 'Messages'],
+      ['dashboard',      'doctor_dashboard.html',   'M3 11l9-8 9 8M5 10v10h14V10',                                                                  'Dashboard'],
+      ['video',          'video_consult.html',      'M15 10l5-3v10l-5-3M3 6h12v12H3z',                                                              'Video Consult'],
+      ['appointments',   'doctor_dashboard.html?tab=appointments',   'M8 2v4M16 2v4M3 9h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z',       'Appointments'],
+      ['records',        'patient_records.html',    'M9 2h6l1 2h3v2H4V4h3l2-2zM6 8h12v12H6z',                                                       'Patient Records'],
     ],
     pharmacist: [
-      ['dashboard', 'pharmacy_dashboard.html', 'M3 11l9-8 9 8M5 10v10h14V10', 'Dashboard'],
-      ['orders', 'pharmacy_dashboard.html', 'M21 8l-9-5-9 5 9 5 9-5z M3 8v8l9 5 9-5V8M12 13v8', 'Orders'],
-      ['inventory', 'pharmacy_dashboard.html', 'M4.5 10.5l7-7a3.5 3.5 0 015 5l-7 7a3.5 3.5 0 01-5-5z M8 8l5 5', 'Inventory'],
+      ['dashboard',      'pharmacy_dashboard.html', 'M3 11l9-8 9 8M5 10v10h14V10',                                                                  'Dashboard'],
+      ['orders',         'pharmacy_dashboard.html?tab=orders', 'M21 8l-9-5-9 5 9 5 9-5z M3 8v8l9 5 9-5V8M12 13v8',                                    'Orders'],
+      ['inventory',      'pharmacy_dashboard.html?tab=inventory', 'M4.5 10.5l7-7a3.5 3.5 0 015 5l-7 7a3.5 3.5 0 01-5-5z M8 8l5 5',                       'Inventory'],
     ],
   };
-  const roleLabel = { patient: 'Patient', doctor: 'Doctor', pharmacist: 'Pharmacy' };
   const items = links[role] || links.patient;
   return `
     <aside class="sidebar">
       <div class="sidebar__brand">
         <div class="sidebar__mark">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"/></svg>
+          <span style="font-family:var(--font-display);font-weight:900;font-size:20px;color:#fff;letter-spacing:-1px;">M</span>
         </div>
         <div class="sidebar__brand-text">
-          <div class="sidebar__brand-name">MediConnect</div>
+          <div class="sidebar__brand-name">Medfinity</div>
           <div class="sidebar__brand-tag">Care. Connect. Comfort.</div>
         </div>
       </div>
@@ -140,33 +138,70 @@ function renderSidebar(activeKey, role){
     </aside>`;
 }
 
-/** Renders the topbar: title/sub on the left, search + bell + profile on the right. */
-function renderTopbar({ title, sub, user, notifCount = 0, rightContent = '' }){
+/**
+ * Renders the topbar: title/sub on the left, optional search + bell + profile on the right.
+ * Pass hideSearch:true for pages where the global doctor/pharmacy search bar should not appear.
+ */
+function renderTopbar({ title, sub, user, notifCount = 0, rightContent = '', hideSearch = false }){
   const roleLabel = { patient: 'Patient', doctor: 'Doctor', pharmacist: 'Pharmacy' }[user?.user_type] || 'Member';
   const displayName = user?.name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'there';
+  const searchBar = hideSearch ? '' : `
+    <div class="topbar__search" id="globalSearchWrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="globalSearch" placeholder="Search doctors, specialties…" autocomplete="off">
+    </div>`;
   return `
     <header class="topbar">
       <div>
         <div class="topbar__title display">${title}</div>
         <div class="topbar__sub">${sub}</div>
       </div>
-      <div class="topbar__search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-        <input placeholder="Search doctors, specialties, clinics…">
-      </div>
+      ${searchBar}
       <div class="topbar__right">
         ${rightContent}
         <div class="topbar__bell">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
           ${notifCount > 0 ? `<span class="topbar__bell-dot">${notifCount}</span>` : ''}
         </div>
-        <div class="topbar__profile">
+        <a class="topbar__profile" href="profile.html" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
           <div class="avatar avatar--sm">${initials(displayName)}</div>
           <div>
             <div class="topbar__profile-name">${escapeHtml(displayName)}</div>
             <div class="topbar__profile-role">${roleLabel}</div>
           </div>
-        </div>
+        </a>
       </div>
     </header>`;
+}
+
+/** Wire the global topbar search to navigate to doctors.html with query param */
+function initGlobalSearch(){
+  const input = document.getElementById('globalSearch');
+  if (!input) return;
+  // Pre-fill from URL param if on doctors page
+  const params = new URLSearchParams(window.location.search);
+  const q = params.get('q');
+  if (q) input.value = q;
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter'){
+      const val = input.value.trim();
+      if (val) window.location.href = `doctors.html?q=${encodeURIComponent(val)}`;
+    }
+  });
+  // Also show live search hint on input
+  input.addEventListener('input', () => {
+    if (input.value.trim().length > 1){
+      input.style.borderColor = 'var(--emerald)';
+    } else {
+      input.style.borderColor = '';
+    }
+  });
+}
+
+// Auto-init global search after DOM is ready
+document.addEventListener('DOMContentLoaded', () => initGlobalSearch());
+// Also init immediately if DOM already loaded (since scripts are deferred inline)
+if (document.readyState !== 'loading') {
+  setTimeout(initGlobalSearch, 50);
 }

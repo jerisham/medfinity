@@ -22,7 +22,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'email', 'password', 'password2', 'first_name', 'last_name',
                   'user_type', 'phone', 'date_of_birth', 'specialization', 'license_number',
-                  'pharmacy_name']
+                  'pharmacy_name', 'pharmacy_license', 'experience_years', 'consultation_fee']
 
     def validate(self, attrs):
         password = attrs.get('password')

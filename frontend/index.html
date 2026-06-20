@@ -7,7 +7,9 @@
 <script>
   const user = getCurrentUser();
   if (user && getAccessToken()){
-    const type = user.user_type === 'pharmacist' ? 'pharmacy' : user.user_type;
+    const type = user.user_type === 'pharmacist' ? 'pharmacy'
+               : user.user_type === 'caregiver'   ? 'patient'
+               : user.user_type;
     window.location.href = `pages/${type}_dashboard.html`;
   } else {
     window.location.href = 'pages/login.html';

@@ -64,7 +64,7 @@ async function apiCall(endpoint, options = {}, _retry = true){
     let detail = 'Something went wrong. Please try again.';
     try {
       const err = await res.json();
-      detail = err.detail || Object.values(err)[0] || detail;
+      detail = err.detail || err.non_field_errors?.[0] || Object.values(err)[0] || detail;
       if (Array.isArray(detail)) detail = detail[0];
     } catch {}
     throw new Error(detail);
@@ -100,57 +100,70 @@ const Auth = {
 
 /* ---------- Users ---------- */
 const UsersAPI = {
-  profile: () => apiCall('/users/profile/'),
-  dashboard: () => apiCall('/users/dashboard/'),
-  doctors: (params = '') => apiCall(`/users/doctors/${params}`),
-  doctor: (id) => apiCall(`/users/doctors/${id}/`),
-  doctorAvailability: (id) => apiCall(`/users/doctors/${id}/availability/`),
+  profile:            ()          => apiCall('/users/profile/'),
+  updateProfile:      (payload)   => apiCall('/users/profile/', { method: 'PATCH', body: JSON.stringify(payload) }),
+  dashboard:          ()          => apiCall('/users/dashboard/'),
+  doctors:            (params='') => apiCall(`/users/doctors/${params}`),
+  doctorSearch:       (q)         => apiCall(`/users/doctors/?search=${encodeURIComponent(q)}`),
+  doctor:             (id)        => apiCall(`/users/doctors/${id}/`),
+  doctorAvailability: (id)        => apiCall(`/users/doctors/${id}/availability/`),
 };
 
 /* ---------- Appointments ---------- */
 const AppointmentsAPI = {
-  list: () => apiCall('/appointments/'),
-  upcoming: () => apiCall('/appointments/upcoming/'),
-  detail: (id) => apiCall(`/appointments/${id}/`),
-  create: (payload) => apiCall('/appointments/', { method: 'POST', body: JSON.stringify(payload) }),
-  cancel: (id) => apiCall(`/appointments/${id}/cancel/`, { method: 'POST' }),
-  slots: (doctorId) => apiCall(`/appointments/slots/${doctorId}/`),
+  list:           (params='')  => apiCall(`/appointments/${params}`),
+  upcoming:       ()           => apiCall('/appointments/upcoming/'),
+  detail:         (id)         => apiCall(`/appointments/${id}/`),
+  create:         (payload)    => apiCall('/appointments/', { method: 'POST', body: JSON.stringify(payload) }),
+  cancel:         (id)         => apiCall(`/appointments/${id}/cancel/`, { method: 'POST' }),
+  updateStatus:   (id, status) => apiCall(`/appointments/${id}/status/`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  slots:          (doctorId)   => apiCall(`/appointments/slots/${doctorId}/`),
+  // Doctor: list unique patients
+  patients:       ()           => apiCall('/appointments/patients/'),
+  // Doctor: appointments for a specific patient
+  forPatient:     (patientId)  => apiCall(`/appointments/?patient_id=${patientId}`),
 };
 
 /* ---------- Health records ---------- */
 const HealthAPI = {
-  records: () => apiCall('/health-records/'),
-  record: (id) => apiCall(`/health-records/${id}/`),
-  latestVitals: () => apiCall('/health-records/vitals/latest/'),
-  vitals: () => apiCall('/health-records/vitals/'),
+  records:      ()   => apiCall('/health-records/'),
+  record:       (id) => apiCall(`/health-records/${id}/`),
+  latestVitals: ()   => apiCall('/health-records/vitals/latest/'),
+  vitals:       ()   => apiCall('/health-records/vitals/'),
 };
 
 /* ---------- Prescriptions ---------- */
 const PrescriptionsAPI = {
-  list: () => apiCall('/prescriptions/'),
-  detail: (id) => apiCall(`/prescriptions/${id}/`),
+  list:           (params='')  => apiCall(`/prescriptions/${params}`),
+  detail:         (id)         => apiCall(`/prescriptions/${id}/`),
+  // Doctor: prescriptions for a specific patient
+  forPatient:     (patientId)  => apiCall(`/prescriptions/?patient_id=${patientId}`),
+  // Doctor: create a new prescription
+  create:         (payload)    => apiCall('/prescriptions/create/', { method: 'POST', body: JSON.stringify(payload) }),
 };
 
 /* ---------- Pharmacy ---------- */
 const PharmacyAPI = {
-  orders: () => apiCall('/pharmacy/orders/'),
-  order: (id) => apiCall(`/pharmacy/orders/${id}/`),
-  updateStatus: (id, status) => apiCall(`/pharmacy/orders/${id}/status/`, { method: 'PATCH', body: JSON.stringify({ status }) }),
-  inventory: () => apiCall('/pharmacy/inventory/'),
-  searchMedicines: (q) => apiCall(`/pharmacy/search/?q=${encodeURIComponent(q)}`),
+  orders:             ()           => apiCall('/pharmacy/orders/'),
+  order:              (id)         => apiCall(`/pharmacy/orders/${id}/`),
+  updateStatus:       (id, status) => apiCall(`/pharmacy/orders/${id}/status/`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  inventory:          ()           => apiCall('/pharmacy/inventory/'),
+  addInventoryItem:   (payload)    => apiCall('/pharmacy/inventory/', { method: 'POST', body: JSON.stringify(payload) }),
+  updateInventoryItem:(id, payload)=> apiCall(`/pharmacy/inventory/${id}/`, { method: 'PATCH', body: JSON.stringify(payload) }),
+  searchMedicines:    (q)          => apiCall(`/pharmacy/search/?q=${encodeURIComponent(q)}`),
 };
 
 /* ---------- Notifications ---------- */
 const NotificationsAPI = {
-  list: () => apiCall('/notifications/'),
-  markRead: (id) => apiCall(`/notifications/read/${id}/`, { method: 'POST' }),
-  markAllRead: () => apiCall('/notifications/read-all/', { method: 'POST' }),
-  reminders: () => apiCall('/notifications/reminders/'),
+  list:        ()   => apiCall('/notifications/'),
+  markRead:    (id) => apiCall(`/notifications/read/${id}/`, { method: 'POST' }),
+  markAllRead: ()   => apiCall('/notifications/read-all/', { method: 'POST' }),
+  reminders:   ()   => apiCall('/notifications/reminders/'),
 };
 
 /* ---------- AI services ---------- */
 const AiAPI = {
-  checkSymptoms: (payload) => apiCall('/ai/symptom-checker/', { method: 'POST', body: JSON.stringify(payload) }),
-  chat: (message) => apiCall('/ai/chat/', { method: 'POST', body: JSON.stringify({ message }) }),
-  recommendDoctor: (payload) => apiCall('/ai/recommend-doctor/', { method: 'POST', body: JSON.stringify(payload) }),
+  checkSymptoms:  (payload) => apiCall('/ai/symptom-checker/', { method: 'POST', body: JSON.stringify(payload) }),
+  chat:           (message) => apiCall('/ai/chat/', { method: 'POST', body: JSON.stringify({ message }) }),
+  recommendDoctor:(payload) => apiCall('/ai/recommend-doctor/', { method: 'POST', body: JSON.stringify(payload) }),
 };

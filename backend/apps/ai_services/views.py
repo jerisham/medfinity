@@ -13,7 +13,6 @@ import os
 @api_view(['POST'])
 @permission_classes([AllowAny])  # Allow anyone to check symptoms
 def check_symptoms(request):
-    
     """AI Symptom Checker endpoint."""
     symptoms = request.data.get('symptoms', [])
     age = request.data.get('age')
@@ -27,7 +26,20 @@ def check_symptoms(request):
     result = checker.check_symptoms(symptoms, age, gender, duration)
 
     if result['success']:
-        return Response(result)
+        import json
+        try:
+            data = json.loads(result['text'])
+            conditions_str = "\n".join([f"- **{c['name']}**: {c.get('likelihood', 'Unknown')} ({c.get('confidence', 0)}% confidence)" for c in data.get('conditions', [])])
+            response_text = f"Based on your symptoms, here is a preliminary analysis:\n\n" \
+                            f"### Possible Conditions:\n{conditions_str}\n\n" \
+                            f"### Recommended Medical Specialty:\n**{data.get('recommended_specialty', 'General Physician')}**\n\n" \
+                            f"### Emergency Care Needed:\n**{data.get('emergency', 'NO')}**\n\n" \
+                            f"### Advice:\n{data.get('advice', '')}\n\n" \
+                            f"### When to see a doctor immediately:\n{data.get('see_doctor_when', '')}\n\n" \
+                            f"_{data.get('disclaimer', 'Always consult a doctor in person.')}_"
+            return Response({'response': response_text})
+        except Exception:
+            return Response({'response': result['text']})
     return Response({'error': result.get('error', 'Unknown error')}, status=500)
 
 
@@ -88,7 +100,18 @@ def recommend_doctor(request):
     result = recommender.recommend_specialty(symptoms)
 
     if result['success']:
-        return Response(result)
+        import json
+        try:
+            data = json.loads(result['text'])
+            secondary = ", ".join(data.get('secondary_specialties', []))
+            response_text = f"I recommend consulting a **{data.get('primary_specialty', 'General Physician')}** for your concern.\n\n" \
+                            f"### Why this specialty:\n{data.get('reasoning', '')}\n\n" \
+                            f"### Expected Examination:\n{data.get('expected_examination', '')}\n\n"
+            if secondary:
+                response_text += f"### Other relevant specialties:\n{secondary}"
+            return Response({'response': response_text})
+        except Exception:
+            return Response({'response': result['text']})
     return Response({'error': result.get('error', 'Unknown error')}, status=500)
 
 

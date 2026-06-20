@@ -2,7 +2,7 @@
    Medfinity — Patient dashboard
 =================================================================== */
 
-const user = requireAuth(['patient']);
+const user = requireAuth(['patient', 'caregiver']);
 
 const ICONS = {
   calendar: '<path d="M8 2v4M16 2v4M3 9h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/>',
@@ -36,12 +36,12 @@ if (document.getElementById('app')){
       <div class="bento" id="bento" style="grid-template-columns: 2fr 1.3fr 1.3fr;">
         <section class="tile tile--peach hero-card tile--w2" style="grid-column: span 1;">
           <h2 class="display">Quality care when you need it</h2>
-          <p>Book appointments, consult doctors, order medicines and manage your health — all in one place.</p>
-          <a class="btn btn--primary" href="book_appointment.html" style="align-self:flex-start;">+ Book Appointment</a>
+          <p>Book appointments, consult doctors, manage prescriptions and track your health — all in one seamless place.</p>
+          <a class="btn btn--primary" href="appointments.html" style="align-self:flex-start;">+ Book Appointment</a>
         </section>
 
         <section class="tile" id="apptTile">
-          <div class="tile__head"><h3>Upcoming Appointment</h3><a class="tile-link" href="book_appointment.html">View all</a></div>
+          <div class="tile__head"><h3>Upcoming Appointment</h3><a class="tile-link" href="appointments.html">View all</a></div>
           <div id="apptPreview">${skeletonRows(1)}</div>
         </section>
 
@@ -55,7 +55,7 @@ if (document.getElementById('app')){
         <section class="tile">
           <div class="tile__head"><h3>Quick Actions</h3></div>
           <div class="qa-list">
-            <a class="qa-row" href="book_appointment.html">
+            <a class="qa-row" href="appointments.html">
               <div class="qa-row__icon" style="background:var(--green-tint);color:var(--emerald-hover);">${icon('calendar')}</div>
               <div><div class="qa-row__title">Book Appointment</div><div class="qa-row__sub">Schedule with doctors</div></div>
             </a>
@@ -63,9 +63,9 @@ if (document.getElementById('app')){
               <div class="qa-row__icon" style="background:var(--peach-tint);color:#d98a3d;">${icon('upload')}</div>
               <div><div class="qa-row__title">Upload Prescription</div><div class="qa-row__sub">Get medicines easily</div></div>
             </a>
-            <a class="qa-row" href="pharmacy_dashboard.html">
-              <div class="qa-row__icon" style="background:var(--blue-tint);color:#3b6fd1;">${icon('box')}</div>
-              <div><div class="qa-row__title">Order Medicines</div><div class="qa-row__sub">From trusted pharmacies</div></div>
+            <a class="qa-row" href="prescriptions.html">
+              <div class="qa-row__icon" style="background:var(--lilac-tint);color:#7c5cbf;">${icon('pill')}</div>
+              <div><div class="qa-row__title">My Prescriptions</div><div class="qa-row__sub">Active medications & rx</div></div>
             </a>
             <a class="qa-row" href="health_records.html">
               <div class="qa-row__icon" style="background:var(--green-tint);color:var(--emerald-hover);">${icon('records')}</div>
@@ -74,13 +74,13 @@ if (document.getElementById('app')){
           </div>
         </section>
 
-        <section class="tile order-card">
-          <div class="tile__head"><h3>Order Medicines</h3><a class="tile-link" href="pharmacy_dashboard.html">View all</a></div>
-          <p style="font-size:13px;color:var(--ink-soft);margin:0;">Get your medicines delivered at your doorstep</p>
-          <div class="order-card__search">
-            <input id="medSearchInput" placeholder="Search medicines…">
-            <button onclick="window.location.href='pharmacy_dashboard.html'">${icon('search')}</button>
+        <section class="tile" style="background:var(--lilac-tint);border-color:transparent;">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+            ${icon('pill','style="color:#7c5cbf;"')}
           </div>
+          <h3 style="margin-bottom:6px;color:#7c5cbf;">Active Prescriptions</h3>
+          <p style="font-size:13px;color:var(--ink-soft);flex:1;margin:0 0 14px;">Review your active diagnoses, dosage plans, and medical advice.</p>
+          <a class="btn btn--primary btn--sm" href="prescriptions.html" style="align-self:flex-start;background:#7c5cbf;border-color:transparent;">View Prescriptions</a>
         </section>
 
         <section class="tile tile--w2" id="vitalsTile">
@@ -94,7 +94,7 @@ if (document.getElementById('app')){
         </section>
 
         <section class="tile" id="rxTile">
-          <div class="tile__head"><h3>Recent Prescriptions</h3><a class="tile-link" href="health_records.html">View all</a></div>
+          <div class="tile__head"><h3>Recent Prescriptions</h3><a class="tile-link" href="prescriptions.html">View all</a></div>
           <div class="list" id="rxList">${skeletonRows(2)}</div>
         </section>
 
@@ -111,7 +111,7 @@ if (document.getElementById('app')){
         </section>
 
         <section class="tile tile--w3">
-          <div class="tile__head"><h3>How MediConnect Works</h3></div>
+          <div class="tile__head"><h3>How Medfinity Works</h3></div>
           <div class="steps">
             <div class="step"><div class="step__icon">${icon('search')}</div><div><div class="step__title">1. Find a Doctor</div><div class="step__sub">Search and choose the right specialist</div></div></div>
             <div class="step"><div class="step__icon">${icon('calendar')}</div><div><div class="step__title">2. Book Appointment</div><div class="step__sub">Pick a time that suits you</div></div></div>
@@ -176,7 +176,7 @@ async function loadAppointments(){
         </div>
       </div>
       <div style="margin-top:12px;"><span class="badge badge--${a.status}">${a.status.replace('_',' ')}</span></div>
-      <a class="btn btn--ghost btn--sm btn--block" style="margin-top:14px;" href="book_appointment.html">View Appointment Details</a>
+      <a class="btn btn--ghost btn--sm btn--block" style="margin-top:14px;" href="appointments.html">View Appointment Details</a>
     `;
   } catch {
     preview.innerHTML = emptyState("Couldn't load appointments", 'Check that the backend is running.', icon('calendar'));
@@ -194,9 +194,9 @@ async function loadPrescriptions(){
         <div class="list-row__icon">${icon('pill')}</div>
         <div class="list-row__body">
           <div class="list-row__title">${escapeHtml(p.diagnosis || 'Prescription')}</div>
-          <div class="list-row__meta">${formatDate(p.created_at)}</div>
+          <div class="list-row__meta">Dr. ${escapeHtml(p.doctor_name || 'Doctor')} · ${formatDate(p.created_at)}</div>
         </div>
-        <span class="badge badge--${p.status || 'active'}">${p.status || 'active'}</span>
+        <span class="badge badge--${p.is_active ? 'active' : 'cancelled'}">${p.is_active ? 'Active' : 'Inactive'}</span>
       </div>`).join('');
   } catch {
     list.innerHTML = emptyState("Couldn't load prescriptions", '', icon('pill'));

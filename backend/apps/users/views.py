@@ -24,12 +24,15 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
 
 
 class DoctorListView(generics.ListAPIView):
-    queryset = User.objects.filter(user_type='doctor', is_available=True)
     serializer_class = DoctorListSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['first_name', 'last_name', 'specialization']
+    search_fields = ['first_name', 'last_name', 'specialization', 'license_number']
     ordering_fields = ['rating', 'consultation_fee', 'experience_years']
+
+    def get_queryset(self):
+        # Show all doctors including unavailable ones (frontend filters display)
+        return User.objects.filter(user_type='doctor')
 
 
 class DoctorDetailView(generics.RetrieveAPIView):
