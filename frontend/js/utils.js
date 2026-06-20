@@ -1,0 +1,172 @@
+/* ===================================================================
+   Medfinity — Shared utilities
+=================================================================== */
+
+function requireAuth(allowedTypes){
+  const user = getCurrentUser();
+  if (!getAccessToken() || !user){
+    window.location.href = '/pages/login.html';
+    return null;
+  }
+  if (allowedTypes && !allowedTypes.includes(user.user_type)){
+    const type = user.user_type === 'pharmacist' ? 'pharmacy' : user.user_type;
+    window.location.href = `/pages/${type}_dashboard.html`;
+    return null;
+  }
+  return user;
+}
+
+function initials(name){
+  if (!name) return '?';
+  return name.trim().split(/\s+/).slice(0,2).map(p => p[0]?.toUpperCase()).join('');
+}
+
+function greeting(){
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
+function formatDate(dateStr){
+  if (!dateStr) return '—';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function formatTime(timeStr){
+  if (!timeStr) return '—';
+  const [h, m] = timeStr.split(':');
+  const d = new Date(); d.setHours(+h, +m);
+  return d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+}
+
+function relativeTime(dateStr){
+  if (!dateStr) return '';
+  const diffMs = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.round(diffMs / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.round(hrs / 24)}d ago`;
+}
+
+function escapeHtml(str=''){
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function showToast(message, type = 'default'){
+  const el = document.createElement('div');
+  el.className = `toast${type !== 'default' ? ' toast--' + type : ''}`;
+  el.textContent = message;
+  document.body.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('is-visible'));
+  setTimeout(() => {
+    el.classList.remove('is-visible');
+    setTimeout(() => el.remove(), 250);
+  }, 3200);
+}
+
+function skeletonRows(n = 3){
+  return Array.from({length:n}).map(() => `
+    <div class="list-row">
+      <div class="skeleton" style="width:36px;height:36px;border-radius:10px;"></div>
+      <div style="flex:1">
+        <div class="skeleton skel-line" style="width:70%"></div>
+        <div class="skeleton skel-line" style="width:40%;height:9px;"></div>
+      </div>
+    </div>`).join('');
+}
+
+function emptyState(title, sub, iconSvg){
+  return `<div class="empty">${iconSvg || ''}<div class="empty__title">${title}</div><div class="empty__sub">${sub || ''}</div></div>`;
+}
+
+/** Renders the sidebar nav for the given role + active page key. */
+function renderSidebar(activeKey, role){
+  const links = {
+    patient: [
+      ['dashboard', 'patient_dashboard.html', 'M3 11l9-8 9 8M5 10v10h14V10', 'Dashboard'],
+      ['book', 'book_appointment.html', 'M8 2v4M16 2v4M3 9h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z', 'Book Appointment'],
+      ['appointments', 'book_appointment.html', 'M8 2v4M16 2v4M3 9h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z', 'My Appointments'],
+      ['doctors', 'ai_chat.html', 'M16 11a4 4 0 10-8 0M2 21a8 8 0 0116 0', 'Doctors'],
+      ['prescriptions', 'health_records.html', 'M9 2h6l1 2h3v2H4V4h3l2-2zM6 8h12v12H6z', 'Prescriptions'],
+      ['pharmacy', 'pharmacy_dashboard.html', 'M21 8l-9-5-9 5 9 5 9-5z M3 8v8l9 5 9-5V8M12 13v8', 'Pharmacy'],
+      ['records', 'health_records.html', 'M3 12h4l3 8 4-16 3 8h4', 'Health Records'],
+      ['ai', 'ai_chat.html', 'M21 11.5a8.4 8.4 0 01-1.1 4.2L21 21l-5.4-1.4a8.5 8.5 0 11-1.6-12.1', 'Messages'],
+    ],
+    doctor: [
+      ['dashboard', 'doctor_dashboard.html', 'M3 11l9-8 9 8M5 10v10h14V10', 'Dashboard'],
+      ['video', 'video_consult.html', 'M15 10l5-3v10l-5-3M3 6h12v12H3z', 'Video Consult'],
+      ['appointments', 'doctor_dashboard.html', 'M8 2v4M16 2v4M3 9h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z', 'Appointments'],
+      ['records', 'health_records.html', 'M9 2h6l1 2h3v2H4V4h3l2-2zM6 8h12v12H6z', 'Patient Records'],
+      ['ai', 'ai_chat.html', 'M21 11.5a8.4 8.4 0 01-1.1 4.2L21 21l-5.4-1.4a8.5 8.5 0 11-1.6-12.1', 'Messages'],
+    ],
+    pharmacist: [
+      ['dashboard', 'pharmacy_dashboard.html', 'M3 11l9-8 9 8M5 10v10h14V10', 'Dashboard'],
+      ['orders', 'pharmacy_dashboard.html', 'M21 8l-9-5-9 5 9 5 9-5z M3 8v8l9 5 9-5V8M12 13v8', 'Orders'],
+      ['inventory', 'pharmacy_dashboard.html', 'M4.5 10.5l7-7a3.5 3.5 0 015 5l-7 7a3.5 3.5 0 01-5-5z M8 8l5 5', 'Inventory'],
+    ],
+  };
+  const roleLabel = { patient: 'Patient', doctor: 'Doctor', pharmacist: 'Pharmacy' };
+  const items = links[role] || links.patient;
+  return `
+    <aside class="sidebar">
+      <div class="sidebar__brand">
+        <div class="sidebar__mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"/></svg>
+        </div>
+        <div class="sidebar__brand-text">
+          <div class="sidebar__brand-name">MediConnect</div>
+          <div class="sidebar__brand-tag">Care. Connect. Comfort.</div>
+        </div>
+      </div>
+      <nav class="sidebar__nav">
+        ${items.map(([key, href, path, label]) => `
+          <a class="sidebar__link${key === activeKey ? ' is-active' : ''}" href="${href}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg>
+            <span>${label}</span>
+          </a>`).join('')}
+      </nav>
+      <div class="sidebar__footer">
+        <div class="sidebar__footer-title">Better health every day</div>
+        <div class="sidebar__footer-sub">Small steps today for a healthier tomorrow.</div>
+      </div>
+      <button class="sidebar__logout" onclick="Auth.logout()" title="Log out">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        <span>Log out</span>
+      </button>
+    </aside>`;
+}
+
+/** Renders the topbar: title/sub on the left, search + bell + profile on the right. */
+function renderTopbar({ title, sub, user, notifCount = 0, rightContent = '' }){
+  const roleLabel = { patient: 'Patient', doctor: 'Doctor', pharmacist: 'Pharmacy' }[user?.user_type] || 'Member';
+  const displayName = user?.name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'there';
+  return `
+    <header class="topbar">
+      <div>
+        <div class="topbar__title display">${title}</div>
+        <div class="topbar__sub">${sub}</div>
+      </div>
+      <div class="topbar__search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input placeholder="Search doctors, specialties, clinics…">
+      </div>
+      <div class="topbar__right">
+        ${rightContent}
+        <div class="topbar__bell">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+          ${notifCount > 0 ? `<span class="topbar__bell-dot">${notifCount}</span>` : ''}
+        </div>
+        <div class="topbar__profile">
+          <div class="avatar avatar--sm">${initials(displayName)}</div>
+          <div>
+            <div class="topbar__profile-name">${escapeHtml(displayName)}</div>
+            <div class="topbar__profile-role">${roleLabel}</div>
+          </div>
+        </div>
+      </div>
+    </header>`;
+}

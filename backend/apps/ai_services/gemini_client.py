@@ -17,7 +17,7 @@ class GeminiClient:
             raise ValueError("Gemini API key is required. Set GEMINI_API_KEY in .env")
         self.client = genai.Client(api_key=self.api_key)
         # Default model - use gemini-3.5-flash (current stable as of June 2026)
-        self.model = 'gemini-3.5-flash'
+        self.model = 'gemini-2.0-flash'
 
     def generate_text(self, prompt, system_instruction=None, temperature=0.7, max_tokens=2048):
         """Generate text from a prompt."""

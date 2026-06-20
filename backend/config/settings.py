@@ -13,15 +13,26 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-hackathon-key-change-in-production')
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key')
 
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['*']  # Change in production
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'medfinity.com']  # Change in production
+
+SECURE_SSL_REDIRECT = False
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+X_FRAME_OPTIONS = 'DENY'
 
 # Application definition
 DJANGO_APPS = [
@@ -125,6 +136,12 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# Serve the frontend folder as additional static files
+FRONTEND_DIR = BASE_DIR.parent / 'frontend'
+STATICFILES_DIRS = [
+    FRONTEND_DIR,
+]
+
 # Media files (for uploads)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -153,7 +170,6 @@ SIMPLE_JWT = {
 
 # CORS - Allow all for hackathon
 CORS_ALLOW_ALL_ORIGINS = True
-
 # API Keys
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
 CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME', '')
