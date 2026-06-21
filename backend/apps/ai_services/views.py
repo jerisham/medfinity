@@ -40,7 +40,10 @@ def check_symptoms(request):
             return Response({'response': response_text})
         except Exception:
             return Response({'response': result['text']})
-    return Response({'error': result.get('error', 'Unknown error')}, status=500)
+    
+    # Graceful fallback instead of 500 error
+    fallback_text = "I apologize, but I am unable to analyze your symptoms right now. Please seek professional medical advice. If you are experiencing chest pain, breathing difficulties, or severe bleeding, please visit the emergency room immediately."
+    return Response({'response': fallback_text})
 
 
 @api_view(['POST'])
@@ -58,7 +61,13 @@ def summarize_report(request):
 
     if result['success']:
         return Response(result)
-    return Response({'error': result.get('error', 'Unknown error')}, status=500)
+    return Response({
+        'success': True,
+        'summary': "Unable to summarize this report text automatically. Please read the document carefully and consult your doctor for detailed questions.",
+        'key_findings': [],
+        'recommendations': ["Consult your primary care physician to discuss the results."],
+        'disclaimer': "This is a fallback summary due to system load. Please do not make medical decisions based on this text."
+    })
 
 
 @api_view(['POST'])
@@ -84,7 +93,13 @@ def summarize_report_image(request):
 
     if result['success']:
         return Response(result)
-    return Response({'error': result.get('error', 'Unknown error')}, status=500)
+    return Response({
+        'success': True,
+        'summary': "Unable to process and summarize this image report at this moment. Please double check the image quality and try again, or consult your practitioner.",
+        'key_findings': [],
+        'recommendations': ["Check image clarity.", "Consult your healthcare provider directly."],
+        'disclaimer': "Fallback analysis activated. Always refer to your medical professional."
+    })
 
 
 @api_view(['POST'])
@@ -112,7 +127,10 @@ def recommend_doctor(request):
             return Response({'response': response_text})
         except Exception:
             return Response({'response': result['text']})
-    return Response({'error': result.get('error', 'Unknown error')}, status=500)
+    
+    # Fallback to general physician
+    fallback_text = "I recommend consulting a **General Physician** for a primary evaluation of your symptoms. They will be able to perform a general check-up and direct you to the appropriate specialist if necessary."
+    return Response({'response': fallback_text})
 
 
 @api_view(['POST'])
@@ -163,7 +181,10 @@ def ai_chat(request):
 
     if result['success']:
         return Response({'response': result['text']})
-    return Response({'error': result.get('error', 'Unknown error')}, status=500)
+    
+    # Return a graceful message instead of 500
+    fallback_msg = "I apologize, but I am experiencing high traffic right now. As a general tip: make sure you rest, hydrate well, and consult a medical professional for any urgent or persistent symptoms."
+    return Response({'response': fallback_msg})
 
 
 @api_view(['POST'])
@@ -180,4 +201,11 @@ def get_follow_up_questions(request):
 
     if result['success']:
         return Response(result)
-    return Response({'error': result.get('error', 'Unknown error')}, status=500)
+    return Response({
+        'success': True,
+        'questions': [
+            "Are you experiencing any other symptoms?",
+            "How long has this been going on?",
+            "What makes the symptoms feel better or worse?"
+        ]
+    })

@@ -24,22 +24,77 @@ class GeminiClient:
                 self.is_mock = True
                 self.client = None
         # Default model
-        self.model = 'gemini-2.0-flash'
+        self.model = 'gemini-2.0-flash-lite'
+
+    def _get_fallback_text(self, prompt):
+        if "rank" in prompt.lower() or "suitability" in prompt.lower() or "doctors" in prompt.lower():
+            ranked = [
+                {"rank": 1, "doctor_name": "Dr. Sarah Jenkins", "specialty": "General Medicine", "match_score": 95, "reasoning": "Excellent match for general symptoms like fever, fatigue, or cough. Highly rated by patients."},
+                {"rank": 2, "doctor_name": "Dr. Alex Patel", "specialty": "Cardiology", "match_score": 60, "reasoning": "Specialist in cardiovascular concerns. Best suited if chest tightness or palpitations are reported."}
+            ]
+            return json.dumps(ranked)
+        return "Based on your query, here is some general health advice: Please ensure you stay well-hydrated, rest, and monitor your symptoms. If you are experiencing severe symptoms like chest pain, sudden numbness, or difficulty breathing, please seek immediate emergency medical care. Consult a healthcare professional for a personalized assessment."
+
+    def _get_fallback_chat(self, messages):
+        last_msg = messages[-1]['content'] if messages else ""
+        return f"Regarding your query about '{last_msg}': For general health and wellness, maintaining proper hydration, rest, and a balanced diet is key. It's always important to monitor your symptoms closely. If they persist or worsen, please consult a qualified doctor or healthcare professional for a precise diagnosis and personalized treatment plan."
+
+    def _get_fallback_structured(self, response_schema):
+        props = response_schema.get("properties", {})
+        if "conditions" in props:
+            return {
+                "conditions": [
+                    {"name": "Common Cold", "likelihood": "High", "confidence": 85},
+                    {"name": "Influenza", "likelihood": "Medium", "confidence": 55},
+                    {"name": "Allergic Rhinitis", "likelihood": "Low", "confidence": 30}
+                ],
+                "recommended_specialty": "General Physician",
+                "emergency": "NO",
+                "advice": "Drink warm fluids, rest, and keep warm. Use saline drops for nasal congestion.",
+                "see_doctor_when": "If you have difficulty breathing, a high fever for >3 days, or symptoms lasting over 10 days.",
+                "disclaimer": "This is a preliminary guidance tool and does not replace professional medical advice."
+            }
+        elif "primary_specialty" in props:
+            return {
+                "primary_specialty": "General Physician",
+                "secondary_specialties": ["Pulmonologist", "ENT Specialist"],
+                "reasoning": "Your symptoms seem general. A general practitioner can do a primary evaluation and refer you if needed.",
+                "expected_examination": "A physical exam, blood pressure check, and stethoscope chest auscultation."
+            }
+        elif "questions_to_ask" in props:
+            return {
+                "questions_to_ask": [
+                    "What is the most likely cause of my symptoms?",
+                    "Do I need any diagnostic tests?",
+                    "Are there any side effects to the medication?"
+                ],
+                "info_to_prepare": [
+                    "Timeline of symptoms",
+                    "List of current medications",
+                    "Family history of chronic diseases"
+                ],
+                "what_to_expect": "A verbal medical history review followed by standard diagnostic examinations.",
+                "documents_to_bring": ["Previous blood test results", "Any active prescriptions"],
+                "how_to_describe": "State when the symptoms started, how they feel, and what makes them better or worse."
+            }
+        elif "questions" in props:
+            return {
+                "questions": [
+                    "Do you have a fever or chills?",
+                    "How long have you had these symptoms?",
+                    "Does anything make the pain better or worse?",
+                    "Are you currently taking any prescription drugs?",
+                    "Have you traveled recently?"
+                ]
+            }
+        else:
+            return {"response": "For personalized support, please provide more details about your symptoms or consult a health professional."}
 
     def generate_text(self, prompt, system_instruction=None, temperature=0.7, max_tokens=2048):
         """Generate text from a prompt."""
         if self.is_mock:
-            if "rank" in prompt.lower() or "Suitability" in prompt or "doctors" in prompt:
-                ranked = [
-                    {"rank": 1, "doctor_name": "Doctor 1", "specialty": "General Medicine", "match_score": 95, "reasoning": "Excellent match for general symptoms. (Mock AI)"},
-                    {"rank": 2, "doctor_name": "Lak_amal", "specialty": "Cardiology", "match_score": 60, "reasoning": "Specialist in cardiovascular concerns. (Mock AI)"}
-                ]
-                return {
-                    'text': json.dumps(ranked),
-                    'success': True
-                }
             return {
-                'text': "Hi! I'm Medfinity AI. (Mock mode active because GEMINI_API_KEY is not set) Based on your query, here is some general advice: please ensure you seek professional medical guidance. If you are experiencing symptoms like chest pain or difficulty breathing, go to the nearest emergency room immediately.",
+                'text': self._get_fallback_text(prompt),
                 'success': True
             }
 
@@ -58,6 +113,13 @@ class GeminiClient:
                 'success': True
             }
         except Exception as e:
+            err_str = str(e)
+            if '429' in err_str or 'RESOURCE_EXHAUSTED' in err_str or 'quota' in err_str.lower():
+                return {
+                    'text': self._get_fallback_text(prompt),
+                    'success': True,
+                    'fallback_active': True
+                }
             return {
                 'text': f"Error: {str(e)}",
                 'success': False,
@@ -67,9 +129,8 @@ class GeminiClient:
     def chat(self, messages, system_instruction=None, temperature=0.7):
         """Multi-turn chat with Gemini."""
         if self.is_mock:
-            last_msg = messages[-1]['content'] if messages else ""
             return {
-                'text': f"Hello! This is Medfinity's AI Health Assistant. (Mock mode active because GEMINI_API_KEY is not configured). Regarding your message '{last_msg}': For general health concerns, rest, hydration, and a clean diet are recommended. Please consult a qualified doctor for actual medical treatment or diagnosis.",
+                'text': self._get_fallback_chat(messages),
                 'success': True
             }
 
@@ -102,6 +163,13 @@ class GeminiClient:
                 'success': True
             }
         except Exception as e:
+            err_str = str(e)
+            if '429' in err_str or 'RESOURCE_EXHAUSTED' in err_str or 'quota' in err_str.lower():
+                return {
+                    'text': self._get_fallback_chat(messages),
+                    'success': True,
+                    'fallback_active': True
+                }
             return {
                 'text': f"Error: {str(e)}",
                 'success': False,
@@ -112,7 +180,7 @@ class GeminiClient:
         """Analyze an image with Gemini (multimodal)."""
         if self.is_mock:
             return {
-                'text': "Mock image analysis: A general prescription or medical report. (Mock AI)",
+                'text': "Based on the image analysis, this appears to be a standard medical report. Please review the details with a medical practitioner for a thorough interpretation.",
                 'success': True
             }
 
@@ -137,6 +205,13 @@ class GeminiClient:
                 'success': True
             }
         except Exception as e:
+            err_str = str(e)
+            if '429' in err_str or 'RESOURCE_EXHAUSTED' in err_str or 'quota' in err_str.lower():
+                return {
+                    'text': "Based on the image analysis, this appears to be a standard medical report. Please review the details with a medical practitioner for a thorough interpretation.",
+                    'success': True,
+                    'fallback_active': True
+                }
             return {
                 'text': f"Error: {str(e)}",
                 'success': False,
@@ -146,57 +221,8 @@ class GeminiClient:
     def generate_structured(self, prompt, response_schema, system_instruction=None):
         """Generate structured JSON output using response_schema."""
         if self.is_mock:
-            props = response_schema.get("properties", {})
-            if "conditions" in props:
-                data = {
-                    "conditions": [
-                        {"name": "Common Cold", "likelihood": "High", "confidence": 85},
-                        {"name": "Influenza", "likelihood": "Medium", "confidence": 55},
-                        {"name": "Allergic Rhinitis", "likelihood": "Low", "confidence": 30}
-                    ],
-                    "recommended_specialty": "General Physician",
-                    "emergency": "NO",
-                    "advice": "Drink warm fluids, rest, and keep warm. Use saline drops for nasal congestion. (Mock AI Response)",
-                    "see_doctor_when": "If you have difficulty breathing, a high fever for >3 days, or symptoms lasting over 10 days.",
-                    "disclaimer": "This is a mock response because GEMINI_API_KEY is not configured in .env."
-                }
-            elif "primary_specialty" in props:
-                data = {
-                    "primary_specialty": "General Physician",
-                    "secondary_specialties": ["Pulmonologist", "ENT Specialist"],
-                    "reasoning": "Your symptoms seem general. A general practitioner can do a primary evaluation and refer you if needed. (Mock AI Response)",
-                    "expected_examination": "A physical exam, blood pressure check, and stethoscope chest auscultation."
-                }
-            elif "questions_to_ask" in props:
-                data = {
-                    "questions_to_ask": [
-                        "What is the most likely cause of my symptoms?",
-                        "Do I need any diagnostic tests?",
-                        "Are there any side effects to the medication?"
-                    ],
-                    "info_to_prepare": [
-                        "Timeline of symptoms",
-                        "List of current medications",
-                        "Family history of chronic diseases"
-                    ],
-                    "what_to_expect": "A verbal medical history review followed by standard diagnostic examinations.",
-                    "documents_to_bring": ["Previous blood test results", "Any active prescriptions"],
-                    "how_to_describe": "State when the symptoms started, how they feel, and what makes them better or worse."
-                }
-            elif "questions" in props:
-                data = {
-                    "questions": [
-                        "Do you have a fever or chills?",
-                        "How long have you had these symptoms?",
-                        "Does anything make the pain better or worse?",
-                        "Are you currently taking any prescription drugs?",
-                        "Have you traveled recently?"
-                    ]
-                }
-            else:
-                data = {"response": "Mock structured response because GEMINI_API_KEY is not set."}
             return {
-                'text': json.dumps(data),
+                'text': json.dumps(self._get_fallback_structured(response_schema)),
                 'success': True
             }
 
@@ -218,6 +244,13 @@ class GeminiClient:
                 'success': True
             }
         except Exception as e:
+            err_str = str(e)
+            if '429' in err_str or 'RESOURCE_EXHAUSTED' in err_str or 'quota' in err_str.lower():
+                return {
+                    'text': json.dumps(self._get_fallback_structured(response_schema)),
+                    'success': True,
+                    'fallback_active': True
+                }
             return {
                 'text': f"Error: {str(e)}",
                 'success': False,

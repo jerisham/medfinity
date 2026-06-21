@@ -139,21 +139,31 @@ async function startLocalStream() {
   joinBtn.disabled = true; joinBtn.textContent = 'Connecting…';
 
   try {
-    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-    const localVideo = document.getElementById('localVideo');
-    localVideo.srcObject = localStream;
+    // Determine the room ID
+    const roomSuffix = currentAppt ? currentAppt.id : 'general-consultation';
+    const roomName = `medfinity-consultation-room-${roomSuffix}`;
+
+    // Replace the remoteFeed/waiting state with Jitsi Iframe
+    const remoteFeed = document.getElementById('remoteFeed');
+    remoteFeed.innerHTML = `
+      <iframe 
+        src="https://meet.jit.si/${roomName}#config.prejoinPageEnabled=false&interfaceConfig.TOOLBAR_BUTTONS=['microphone','camera','closedcaptions','desktop','embedmeeting','fullscreen','fodeviceselection','hangup','profile','chat','recording','livestreaming','etherpad','sharedvideo','settings','raisehand','videoquality','filmstrip','invite','feedback','stats','shortcuts','tileview','videobackgroundblur','download','help','mute-everyone','mute-video-everyone','security']" 
+        allow="camera; microphone; fullscreen; display-capture; autoplay" 
+        style="width:100%; height:100%; border:none; border-radius:12px; background:#111827;">
+      </iframe>
+    `;
+
+    // Hide self PIP because Jitsi handles self preview
+    document.getElementById('selfPip').style.display = 'none';
 
     // Hide waiting state, update status
     document.getElementById('waitingState').style.display = 'none';
-    setCallStatus('connected', 'Connected');
+    setCallStatus('connected', 'Connected via Jitsi');
     startCallTimer();
     joinBtn.style.display = 'none';
   } catch (err) {
     joinBtn.disabled = false; joinBtn.textContent = '🎥 Join Call';
-    let msg = 'Could not access camera/mic.';
-    if (err.name === 'NotAllowedError') msg = 'Permission denied. Please allow camera and microphone access in your browser.';
-    else if (err.name === 'NotFoundError') msg = 'No camera or microphone found on this device.';
-    showToast(msg, 'error');
+    showToast('Could not initialize meeting room.', 'error');
   }
 }
 

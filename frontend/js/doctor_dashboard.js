@@ -122,6 +122,40 @@ async function loadDashboard(){
   loadStats();
   loadSchedule();
   loadNotifications();
+  if (window.Notification && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
+
+const notifiedAppts = new Set();
+
+function checkUpcomingReminders(items) {
+  if (!items || !items.length) return;
+  const now = new Date();
+  
+  items.forEach(a => {
+    if (a.status !== 'scheduled' && a.status !== 'confirmed') return;
+    
+    const [year, month, day] = a.appointment_date.split('-');
+    const [hour, min] = a.appointment_time.split(':');
+    const apptDate = new Date(year, month - 1, day, hour, min);
+    
+    const diffMs = apptDate.getTime() - now.getTime();
+    const diffMins = diffMs / 60000;
+    
+    if (diffMins > 0 && diffMins <= 10 && !notifiedAppts.has(a.id)) {
+      notifiedAppts.add(a.id);
+      
+      if (window.Notification && Notification.permission === 'granted') {
+        new Notification(`Upcoming Appointment Reminder`, {
+          body: `Your appointment with ${a.patient_name || 'Patient'} is scheduled at ${formatTime(a.appointment_time)} (${a.appointment_type === 'video' ? 'Video' : 'In-person'}).`,
+          icon: '/favicon.ico'
+        });
+      }
+      
+      showToast(`Reminder: Appointment with ${a.patient_name || 'Patient'} starts at ${formatTime(a.appointment_time)}!`, 'default');
+    }
+  });
 }
 
 async function loadStats(){
@@ -141,6 +175,9 @@ async function loadSchedule(){
   try {
     const data = await AppointmentsAPI.upcoming();
     const items = data.results || data;
+    
+    checkUpcomingReminders(items);
+    
     if (!items.length){
       list.innerHTML = emptyState('Nothing on the books today', 'Enjoy the quiet.', icon('calendar'));
       preview.innerHTML = emptyState('No appointments yet', '', icon('calendar'));
@@ -194,6 +231,13 @@ async function loadSchedule(){
     preview.innerHTML = emptyState("Couldn't load", '', icon('calendar'));
   }
 }
+
+// Auto-refresh stats and appointments list in real-time
+setInterval(() => {
+  loadSchedule();
+  loadStats();
+  loadNotifications();
+}, 30000);
 
 async function loadNotifications(){
   const list = document.getElementById('notifList');

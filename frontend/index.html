@@ -3,17 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <title>Medfinity</title>
-<script src="js/api.js"></script>
 <script>
-  const user = getCurrentUser();
-  if (user && getAccessToken()){
-    const type = user.user_type === 'pharmacist' ? 'pharmacy'
-               : user.user_type === 'caregiver'   ? 'patient'
-               : user.user_type;
-    window.location.href = `pages/${type}_dashboard.html`;
-  } else {
-    window.location.href = 'pages/login.html';
-  }
+  window.location.href = 'pages/login.html';
 </script>
 </head>
 <body></body>

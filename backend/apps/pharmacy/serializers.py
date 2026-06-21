@@ -10,6 +10,21 @@ class MedicineInventorySerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['pharmacy']
 
+    def validate(self, attrs):
+        # We need to access the request context to check the pharmacy (which is request.user)
+        request = self.context.get('request')
+        if request and request.user:
+            pharmacy = request.user
+            medicine_name = attrs.get('medicine_name')
+            # Check unique_together manually to avoid 500 error if it already exists
+            exists = MedicineInventory.objects.filter(pharmacy=pharmacy, medicine_name=medicine_name).exists()
+            # If we are updating, make sure we don't block editing the same instance
+            if exists and (not self.instance or self.instance.medicine_name != medicine_name):
+                raise serializers.ValidationError({
+                    "medicine_name": "Medicine with this name already exists in your inventory. Please update the existing stock instead."
+                })
+        return attrs
+
 class OrderItemSerializer(serializers.ModelSerializer):
     medicine_name = serializers.CharField(source='medicine.name', read_only=True)
     

@@ -203,6 +203,14 @@ async function loadPrescriptions(){
   }
 }
 
+// Auto-refresh stats and appointments list in real-time
+setInterval(() => {
+  loadVitals();
+  loadAppointments();
+  loadPrescriptions();
+  loadNotifications();
+}, 30000);
+
 async function loadNotifications(){
   const list = document.getElementById('notifList');
   try {
