@@ -101,13 +101,27 @@ WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
 
 # Database - SQLite for hackathon, switch to PostgreSQL later
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+import urllib.parse
 
+if os.environ.get('DATABASE_URL'):
+    _db_url = urllib.parse.urlparse(os.environ['DATABASE_URL'])
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': _db_url.path.lstrip('/'),
+            'USER': _db_url.username,
+            'PASSWORD': _db_url.password,
+            'HOST': _db_url.hostname,
+            'PORT': _db_url.port,
+        }
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 # For PostgreSQL (uncomment when ready):
 # DATABASES = {
 #     'default': {
