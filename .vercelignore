@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.git/
+.github/
+backend/db.sqlite3
+README.md
+docs/
+ai/
+scripts/
