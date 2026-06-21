@@ -23,7 +23,8 @@ const ICONS = {
 const icon = (name, attrs='') => `<svg ${attrs} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
 
 /* ── State ──────────────────────────────────────────────── */
-let localStream    = null;
+let localStream    = null; // Not needed for Jitsi API, but we keep/use for interface states
+let jitsiApi       = null;
 let isMicOn        = true;
 let isCamOn        = true;
 let callTimer      = null;
@@ -58,7 +59,7 @@ if (document.getElementById('app')) {
 
           <!-- Remote / waiting feed -->
           <div class="video-stage__feed" id="remoteFeed">
-            <div id="waitingState" style="text-align:center;color:rgba(255,255,255,.5);">
+            <div id="waitingState" style="text-align:center;color:rgba(255,255,255,.5);z-index:20;">
               <div style="width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
                 ${icon('video', 'style="width:36px;height:36px;color:rgba(255,255,255,.4);"')}
               </div>
@@ -66,11 +67,10 @@ if (document.getElementById('app')) {
               <div style="font-size:13px;opacity:.6;">Make sure your camera and microphone are allowed.</div>
               <button class="btn btn--primary" id="joinCallBtn" style="margin-top:24px;">${icon('video')} Join Call</button>
             </div>
-            <video id="remoteVideo" autoplay playsinline style="width:100%;height:100%;object-fit:cover;display:none;"></video>
           </div>
 
-          <!-- Self preview (PiP) -->
-          <div class="video-stage__self" id="selfPip">
+          <!-- Self preview (PiP) - Hidden during Jitsi API use to avoid double layouts -->
+          <div class="video-stage__self" id="selfPip" style="display:none;">
             <video id="localVideo" autoplay playsinline muted style="width:100%;height:100%;object-fit:cover;background:#1a2332;"></video>
             <div id="camOffLabel" style="display:none;position:absolute;inset:0;background:#1a2332;align-items:center;justify-content:center;color:rgba(255,255,255,.5);font-size:11px;font-weight:700;flex-direction:column;gap:6px;">
               ${icon('videoOff', 'style="width:22px;height:22px;"')}
@@ -133,45 +133,88 @@ function initVideo() {
   document.getElementById('saveNotes').addEventListener('click', saveNotes);
 }
 
-/* ── Local stream ───────────────────────────────────────── */
+/* ── Local stream (Jitsi Integration) ───────────────────── */
 async function startLocalStream() {
   const joinBtn = document.getElementById('joinCallBtn');
   joinBtn.disabled = true; joinBtn.textContent = 'Connecting…';
 
   try {
-    // Determine the room ID
     const roomSuffix = currentAppt ? currentAppt.id : 'general-consultation';
     const roomName = `medfinity-consultation-room-${roomSuffix}`;
 
-    // Replace the remoteFeed/waiting state with Jitsi Iframe
-    const remoteFeed = document.getElementById('remoteFeed');
-    remoteFeed.innerHTML = `
-      <iframe 
-        src="https://meet.jit.si/${roomName}#config.prejoinPageEnabled=false&interfaceConfig.TOOLBAR_BUTTONS=['microphone','camera','closedcaptions','desktop','embedmeeting','fullscreen','fodeviceselection','hangup','profile','chat','recording','livestreaming','etherpad','sharedvideo','settings','raisehand','videoquality','filmstrip','invite','feedback','stats','shortcuts','tileview','videobackgroundblur','download','help','mute-everyone','mute-video-everyone','security']" 
-        allow="camera; microphone; fullscreen; display-capture; autoplay" 
-        style="width:100%; height:100%; border:none; border-radius:12px; background:#111827;">
-      </iframe>
-    `;
+    // Clean up old Jitsi instance if it exists
+    if (jitsiApi) {
+      jitsiApi.dispose();
+      jitsiApi = null;
+    }
 
-    // Hide self PIP because Jitsi handles self preview
-    document.getElementById('selfPip').style.display = 'none';
+    const domain = 'meet.jit.si';
+    const options = {
+      roomName: roomName,
+      parentNode: document.getElementById('remoteFeed'),
+      width: '100%',
+      height: '100%',
+      configOverwrite: {
+        prejoinPageEnabled: false,
+        disableDeepLinking: true,
+        // Hide standard Jitsi control UI so our webpage buttons have complete control
+        toolbarButtons: [], 
+        settingsMap: {
+          deviceSelection: false,
+          moderator: false,
+          profile: false,
+          calendar: false
+        }
+      },
+      interfaceConfigOverwrite: {
+        TOOLBAR_BUTTONS: [],
+        SETTINGS_SECTIONS: []
+      },
+      userInfo: {
+        displayName: user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User'
+      }
+    };
 
-    // Hide waiting state, update status
+    // Load Jitsi API
+    if (typeof JitsiMeetExternalAPI === 'undefined') {
+      throw new Error('Jitsi External API script is not loaded. Verify the script tag in the page.');
+    }
+
     document.getElementById('waitingState').style.display = 'none';
-    setCallStatus('connected', 'Connected via Jitsi');
-    startCallTimer();
-    joinBtn.style.display = 'none';
+
+    jitsiApi = new JitsiMeetExternalAPI(domain, options);
+
+    // Sync current UI button status on start
+    isMicOn = true;
+    isCamOn = true;
+    updateMicButton();
+    updateCamButton();
+
+    jitsiApi.addEventListener('videoConferenceJoined', () => {
+      setCallStatus('connected', 'Connected via Jitsi API');
+      startCallTimer();
+      joinBtn.style.display = 'none';
+    });
+
+    jitsiApi.addEventListener('videoConferenceLeft', () => {
+      endCall(false);
+    });
   } catch (err) {
     joinBtn.disabled = false; joinBtn.textContent = '🎥 Join Call';
-    showToast('Could not initialize meeting room.', 'error');
+    document.getElementById('waitingState').style.display = 'flex';
+    showToast('Could not initialize Jitsi Meeting Service: ' + err.message, 'error');
   }
 }
 
-/* ── Mic / Cam toggles ──────────────────────────────────── */
+/* ── Mic / Cam toggles (Programmatic Controls) ──────────── */
 function toggleMic() {
-  if (!localStream) { showToast('Join the call first.', 'default'); return; }
+  if (!jitsiApi) { showToast('Join the call first.', 'default'); return; }
   isMicOn = !isMicOn;
-  localStream.getAudioTracks().forEach(t => t.enabled = isMicOn);
+  jitsiApi.executeCommand('toggleAudio');
+  updateMicButton();
+}
+
+function updateMicButton() {
   const btn = document.getElementById('micBtn');
   btn.className = `vctrl ${isMicOn ? 'vctrl--active' : 'vctrl--default'}`;
   btn.innerHTML = icon(isMicOn ? 'mic' : 'micOff');
@@ -179,40 +222,50 @@ function toggleMic() {
 }
 
 function toggleCam() {
-  if (!localStream) { showToast('Join the call first.', 'default'); return; }
+  if (!jitsiApi) { showToast('Join the call first.', 'default'); return; }
   isCamOn = !isCamOn;
-  localStream.getVideoTracks().forEach(t => t.enabled = isCamOn);
-  const btn  = document.getElementById('camBtn');
-  const label= document.getElementById('camOffLabel');
+  jitsiApi.executeCommand('toggleVideo');
+  updateCamButton();
+}
+
+function updateCamButton() {
+  const btn = document.getElementById('camBtn');
   btn.className = `vctrl ${isCamOn ? 'vctrl--active' : 'vctrl--default'}`;
   btn.innerHTML = icon(isCamOn ? 'video' : 'videoOff');
   btn.title = isCamOn ? 'Turn off camera' : 'Turn on camera';
-  label.style.display = isCamOn ? 'none' : 'flex';
 }
 
 /* ── End call ───────────────────────────────────────────── */
-function endCall() {
-  if (!localStream && !confirm('Are you sure you want to leave?')) return;
-  if (localStream) {
-    localStream.getTracks().forEach(t => t.stop());
-    localStream = null;
+function endCall(confirmLeave = true) {
+  if (confirmLeave && !confirm('Are you sure you want to end the call?')) return;
+
+  if (jitsiApi) {
+    jitsiApi.executeCommand('hangup');
+    jitsiApi.dispose();
+    jitsiApi = null;
   }
+
   stopCallTimer();
   setCallStatus('idle', 'Call ended');
 
-  document.getElementById('localVideo').srcObject = null;
-  document.getElementById('remoteVideo').srcObject = null;
-  document.getElementById('remoteVideo').style.display = 'none';
-  document.getElementById('waitingState').style.display = 'flex';
-  document.getElementById('joinCallBtn').style.display = 'inline-flex';
-  document.getElementById('joinCallBtn').disabled = false;
-  document.getElementById('joinCallBtn').innerHTML = `${icon('video')} Rejoin Call`;
-  document.getElementById('camOffLabel').style.display = 'none';
+  const remoteFeed = document.getElementById('remoteFeed');
+  remoteFeed.innerHTML = `
+    <div id="waitingState" style="text-align:center;color:rgba(255,255,255,.5);z-index:20;">
+      <div style="width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+        ${icon('video', 'style="width:36px;height:36px;color:rgba(255,255,255,.4);"')}
+      </div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Waiting for consultation…</div>
+      <div style="font-size:13px;opacity:.6;">Make sure your camera and microphone are allowed.</div>
+      <button class="btn btn--primary" id="joinCallBtn" style="margin-top:24px;">${icon('video')} Join Call</button>
+    </div>
+  `;
+
+  // Re-bind click handler to the newly created button
+  document.getElementById('joinCallBtn').addEventListener('click', startLocalStream);
+
   isMicOn = true; isCamOn = true;
-  document.getElementById('micBtn').className = 'vctrl vctrl--active';
-  document.getElementById('micBtn').innerHTML = icon('mic');
-  document.getElementById('camBtn').className = 'vctrl vctrl--active';
-  document.getElementById('camBtn').innerHTML = icon('video');
+  updateMicButton();
+  updateCamButton();
   showToast('Call ended.', 'default');
 }
 

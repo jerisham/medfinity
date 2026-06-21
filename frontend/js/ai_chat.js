@@ -244,10 +244,15 @@ function appendAiMessage(text, mode, scroll = true) {
   const m = mode || MODES.find(m => m.key === activeMode);
   const el = document.createElement('div');
   el.className = 'msg msg--ai';
-  // Convert newlines to <br> and bold **text**
-  const formatted = escapeHtml(text)
+  
+  // Format basic markdown safely
+  let formatted = escapeHtml(text)
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^### (.*?)$/gm, '<h3 style="margin-top:10px;margin-bottom:6px;font-size:16px;">$1</h3>')
+    .replace(/^## (.*?)$/gm, '<h2 style="margin-top:12px;margin-bottom:8px;font-size:18px;">$1</h2>')
+    .replace(/^- (.*?)$/gm, '<li style="margin-left:20px;margin-bottom:4px;">$1</li>')
     .replace(/\n/g, '<br>');
+
   el.innerHTML = `
     <div class="msg__avatar" style="background:${m?.col || 'var(--emerald)'};color:white;font-size:11px;">AI</div>
     <div>
