@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create account · Medfinity</title>
+<link rel="stylesheet" href="../css/main.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body>
+  <div class="auth">
+    <div class="auth__card" style="max-width:500px;">
+      <div class="auth__mark">M</div>
+      <h1>Create your account</h1>
+      <p class="sub">Care, coordinated in one place.</p>
+
+      <div class="form-error" id="registerError"></div>
+
+      <form id="registerForm">
+        <div class="field-row">
+          <div class="field">
+            <label for="first_name">First name</label>
+            <input id="first_name" name="first_name" required>
+          </div>
+          <div class="field">
+            <label for="last_name">Last name</label>
+            <input id="last_name" name="last_name" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="username">Username</label>
+          <input id="username" name="username" required>
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" required>
+        </div>
+        <div class="field">
+          <label for="user_type">I am a</label>
+          <select id="user_type" name="user_type">
+            <option value="patient">Patient</option>
+            <option value="doctor">Doctor</option>
+            <option value="pharmacist">Pharmacist</option>
+          </select>
+        </div>
+
+        <!-- Doctor-only fields — shown when user_type = doctor -->
+        <div id="doctorFields" style="display:none;">
+          <div class="field">
+            <label for="specialization">Specialization</label>
+            <select id="specialization" name="specialization">
+              <option value="General">General Physician</option>
+              <option value="Cardiology">Cardiologist</option>
+              <option value="Dermatology">Dermatologist</option>
+              <option value="Neurology">Neurologist</option>
+              <option value="Orthopedics">Orthopedic Surgeon</option>
+              <option value="Pediatrics">Pediatrician</option>
+              <option value="Gynecology">Gynecologist</option>
+              <option value="Psychiatry">Psychiatrist</option>
+              <option value="ENT">ENT Specialist</option>
+              <option value="Ophthalmology">Ophthalmologist</option>
+              <option value="Urology">Urologist</option>
+              <option value="Oncology">Oncologist</option>
+              <option value="Endocrinology">Endocrinologist</option>
+              <option value="Pulmonology">Pulmonologist</option>
+              <option value="Gastroenterology">Gastroenterologist</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="license_number">Medical License Number</label>
+            <input id="license_number" name="license_number" placeholder="e.g. MCI-12345">
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="experience_years">Years of Experience</label>
+              <input id="experience_years" name="experience_years" type="number" min="0" max="60" placeholder="0">
+            </div>
+            <div class="field">
+              <label for="consultation_fee">Consultation Fee (₹)</label>
+              <input id="consultation_fee" name="consultation_fee" type="number" min="0" placeholder="500">
+            </div>
+          </div>
+        </div>
+
+        <!-- Pharmacy-only fields — shown when user_type = pharmacist -->
+        <div id="pharmacyFields" style="display:none;">
+          <div class="field">
+            <label for="pharmacy_name">Pharmacy Store Name</label>
+            <input id="pharmacy_name" name="pharmacy_name" placeholder="e.g. CareFirst Pharmacy">
+          </div>
+          <div class="field">
+            <label for="pharmacy_license">Pharmacy License Number</label>
+            <input id="pharmacy_license" name="pharmacy_license" placeholder="e.g. PH-987654">
+          </div>
+          <div class="field">
+            <label for="pharmacy_address">Pharmacy Address</label>
+            <textarea id="pharmacy_address" name="pharmacy_address" rows="2" placeholder="Street, area, city"></textarea>
+          </div>
+          <div class="field">
+            <label>Pin your pharmacy's exact location on the map</label>
+            <div style="font-size:12px;color:var(--ink-soft);margin-bottom:6px;">Search an address, use "Locate me", or click anywhere on the map. This is what patients' nearest-pharmacy matching is based on.</div>
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <input id="pharmacyMapSearch" placeholder="Search address…" style="flex:1;">
+              <button type="button" id="pharmacyLocateMe" class="btn btn--ghost btn--sm">📍 Locate me</button>
+            </div>
+            <div id="pharmacyMap" style="height:240px;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--glass-border);"></div>
+            <div id="pharmacyMapCoords" style="font-size:12px;color:var(--ink-soft);margin-top:6px;">No location selected yet.</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="new-password" required>
+        </div>
+        <button class="btn btn--primary btn--block" type="submit" id="registerBtn">Create account</button>
+      </form>
+
+      <div class="auth__footer">Already have an account? <a href="login.html">Log in</a></div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    // Show/hide doctor/pharmacy-specific fields based on user type selection
+    document.getElementById('user_type').addEventListener('change', function() {
+      document.getElementById('doctorFields').style.display =
+        this.value === 'doctor' ? 'block' : 'none';
+      document.getElementById('pharmacyFields').style.display =
+        this.value === 'pharmacist' ? 'block' : 'none';
+      if (this.value === 'pharmacist') initPharmacyMap();
+    });
+
+    // ---- Pharmacy location picker (Leaflet + OpenStreetMap) ----
+    let pharmacyMap, pharmacyMarker;
+    window.pharmacyLocation = null; // { lat, lng } read by auth.js on submit
+
+    function initPharmacyMap() {
+      if (pharmacyMap) { pharmacyMap.invalidateSize(); return; }
+      pharmacyMap = L.map('pharmacyMap').setView([20.5937, 78.9629], 5); // India default view
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19,
+      }).addTo(pharmacyMap);
+
+      pharmacyMap.on('click', (e) => setPharmacyMarker(e.latlng.lat, e.latlng.lng));
+
+      document.getElementById('pharmacyLocateMe').addEventListener('click', () => {
+        if (!navigator.geolocation) return showToast('Geolocation not supported by this browser.', 'error');
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            pharmacyMap.setView([pos.coords.latitude, pos.coords.longitude], 16);
+            setPharmacyMarker(pos.coords.latitude, pos.coords.longitude);
+          },
+          () => showToast('Could not get your location. Pick it on the map instead.', 'error')
+        );
+      });
+
+      const searchInput = document.getElementById('pharmacyMapSearch');
+      let searchTimer;
+      searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); geocodeAddress(searchInput.value); }
+      });
+    }
+
+    function setPharmacyMarker(lat, lng) {
+      window.pharmacyLocation = { lat, lng };
+      if (pharmacyMarker) {
+        pharmacyMarker.setLatLng([lat, lng]);
+      } else {
+        pharmacyMarker = L.marker([lat, lng], { draggable: true }).addTo(pharmacyMap);
+        pharmacyMarker.on('dragend', () => {
+          const ll = pharmacyMarker.getLatLng();
+          window.pharmacyLocation = { lat: ll.lat, lng: ll.lng };
+          document.getElementById('pharmacyMapCoords').textContent =
+            `Selected: ${ll.lat.toFixed(5)}, ${ll.lng.toFixed(5)}`;
+        });
+      }
+      document.getElementById('pharmacyMapCoords').textContent =
+        `Selected: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+    }
+
+    // Free OSM Nominatim geocoder — turns a typed address into map coordinates.
+    async function geocodeAddress(query) {
+      if (!query.trim()) return;
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        if (!data.length) return showToast('Address not found. Try a more specific search or click the map.', 'error');
+        const { lat, lon } = data[0];
+        pharmacyMap.setView([parseFloat(lat), parseFloat(lon)], 16);
+        setPharmacyMarker(parseFloat(lat), parseFloat(lon));
+      } catch {
+        showToast('Could not search that address right now.', 'error');
+      }
+    }
+  </script>
+</body>
+</html>
