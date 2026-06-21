@@ -2,15 +2,12 @@
   "version": 2,
   "builds": [
     {
-      "src": "medfinity/wsgi.py",
+      "src": "api/index.py",
       "use": "@vercel/python",
       "config": { "maxDuration": 60 }
     }
   ],
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "medfinity/wsgi.py"
-    }
+    { "src": "/(.*)", "dest": "api/index.py" }
   ]
 }
