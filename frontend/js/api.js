@@ -3,7 +3,7 @@
    Wired to backend/config/urls.py + each app's urls.py
 =================================================================== */
 
-const API_BASE = '/api';
+const API_BASE = 'http://localhost:8000/api';
 
 function getAccessToken(){ return localStorage.getItem('medfinity_access'); }
 function getRefreshToken(){ return localStorage.getItem('medfinity_refresh'); }
