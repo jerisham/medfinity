@@ -36,6 +36,13 @@ class User(AbstractUser):
     pharmacy_name = models.CharField(max_length=200, blank=True)
     pharmacy_license = models.CharField(max_length=50, blank=True)
 
+    # Geolocation (captured via Leaflet/OpenStreetMap on registration for
+    # pharmacies, and on-the-fly via browser geolocation for patients when
+    # ordering). Used to compute nearest-pharmacy matches with the Haversine
+    # formula.
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+
     class Meta:
         db_table = 'users'
 

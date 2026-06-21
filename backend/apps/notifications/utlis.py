@@ -61,3 +61,13 @@ def notify_order_status(order):
         notification_type='order',
         related_id=order.id
     )
+
+def notify_new_order(order):
+    """Notify the pharmacy when a patient places a new medicine order."""
+    create_notification(
+        user=order.pharmacy,
+        title='New Order Received',
+        message=f'{order.patient.get_full_name()} placed a new order (#{order.id}) for ₹{order.total_amount}',
+        notification_type='order',
+        related_id=order.id
+    )

@@ -94,13 +94,15 @@ function renderSidebar(activeKey, role){
       ['appointments',   'appointments.html',       'M8 2v4M16 2v4M3 9h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z',       'Appointments'],
       ['doctors',        'doctors.html',            'M16 11a4 4 0 10-8 0M2 21a8 8 0 0116 0',                                                         'Doctors'],
       ['prescriptions',  'prescriptions.html',      'M9 2h6l1 2h3v2H4V4h3l2-2zM6 8h12v12H6zM9 12h6M9 16h4',                                         'Prescriptions'],
+      ['orders',         'orders.html',             'M21 8l-9-5-9 5 9 5 9-5z M3 8v8l9 5 9-5V8M12 13v8',                                              'My Orders'],
+      ['reminders',      'reminders.html',          'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',                                                  'Reminders'],
       ['records',        'health_records.html',     'M3 12h4l3 8 4-16 3 8h4',                                                                        'Health Records'],
       ['ai',             'ai_chat.html',            'M21 11.5a8.4 8.4 0 01-1.1 4.2L21 21l-5.4-1.4a8.5 8.5 0 11-1.6-12.1',                           'AI Chat'],
     ],
     doctor: [
       ['dashboard',      'doctor_dashboard.html',   'M3 11l9-8 9 8M5 10v10h14V10',                                                                  'Dashboard'],
       ['video',          'video_consult.html',      'M15 10l5-3v10l-5-3M3 6h12v12H3z',                                                              'Video Consult'],
-      ['appointments',   'doctor_dashboard.html?tab=appointments',   'M8 2v4M16 2v4M3 9h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z',       'Appointments'],
+      ['appointments',   'doctor_appointments.html', 'M8 2v4M16 2v4M3 9h18M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z',       'Appointments'],
       ['records',        'patient_records.html',    'M9 2h6l1 2h3v2H4V4h3l2-2zM6 8h12v12H6z',                                                       'Patient Records'],
     ],
     pharmacist: [

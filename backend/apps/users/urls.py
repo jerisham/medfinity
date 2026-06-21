@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import (RegisterView, UserProfileView, DoctorListView, 
-                    DoctorDetailView, DoctorAvailabilityView, get_user_dashboard)
+                    DoctorDetailView, DoctorAvailabilityView, PharmacistListView,
+                    get_user_dashboard, nearby_pharmacies)
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
@@ -9,4 +10,6 @@ urlpatterns = [
     path('doctors/', DoctorListView.as_view(), name='doctor-list'),
     path('doctors/<int:pk>/', DoctorDetailView.as_view(), name='doctor-detail'),
     path('doctors/<int:doctor_id>/availability/', DoctorAvailabilityView.as_view(), name='doctor-availability'),
+    path('pharmacists/', PharmacistListView.as_view(), name='pharmacist-list'),
+    path('pharmacists/nearby/', nearby_pharmacies, name='pharmacist-nearby'),
 ]

@@ -143,6 +143,15 @@ async function loadPatients() {
       document.getElementById(`pt-item-${p.id}`).addEventListener('click', () => selectPatient(p));
     });
 
+    // If we arrived here from the appointments queue with a specific patient
+    // in mind (?patient=ID), open their record straight away.
+    const params = new URLSearchParams(window.location.search);
+    const wantedId = params.get('patient');
+    if (wantedId) {
+      const target = patientsList.find(p => String(p.id) === String(wantedId));
+      if (target) selectPatient(target);
+    }
+
   } catch (err) {
     list.innerHTML = emptyState("Couldn't load patients", err.message, icon('records'));
   }

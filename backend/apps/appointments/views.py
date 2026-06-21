@@ -31,7 +31,9 @@ class AppointmentListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         # patient is set inside AppointmentCreateSerializer.create()
-        serializer.save()
+        appointment = serializer.save()
+        from apps.notifications.utlis import notify_appointment_booked
+        notify_appointment_booked(appointment)
 
 
 class AppointmentDetailView(generics.RetrieveUpdateDestroyAPIView):

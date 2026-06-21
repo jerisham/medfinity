@@ -157,6 +157,11 @@ ENV/
 env.bak/
 venv.bak/
 
+# Secrets / private keys (JaaS RSA private key, etc.)
+backend/keys/
+*.pem
+*.key
+
 # Spyder project settings
 .spyderproject
 .spyproject

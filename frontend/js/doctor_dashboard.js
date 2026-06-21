@@ -35,19 +35,12 @@ if (document.getElementById('app')){
         <section class="tile tile--peach hero-card">
           <h2 class="display">Steady hands, steady day</h2>
           <p>Review your schedule, jump into consults and keep patient care moving — all in one place.</p>
-          <a class="btn btn--primary" href="video_consult.html" style="align-self:flex-start;">Start a Consult</a>
+          <a class="btn btn--primary btn--lg" href="video_consult.html" style="align-self:flex-start;">${icon('video','style="width:16px;height:16px;"')} Start a Consult</a>
         </section>
 
         <section class="tile" id="nextApptTile">
-          <div class="tile__head"><h3>Next Appointment</h3><a class="tile-link" href="#">View all</a></div>
+          <div class="tile__head"><h3>Next Appointment</h3><a class="tile-link" href="doctor_appointments.html">View all</a></div>
           <div id="nextApptPreview">${skeletonRows(1)}</div>
-        </section>
-
-        <section class="tile cta-card" style="background:var(--peach-tint);border-color:transparent;">
-          <div class="cta-card__icon">${icon('headset')}</div>
-          <h3 style="margin-bottom:6px;">Video room ready</h3>
-          <p style="font-size:13px;color:var(--ink-soft);flex:1;margin:0 0 14px;">Jump into your next scheduled video consultation.</p>
-          <a class="btn btn--primary btn--sm" href="video_consult.html" style="align-self:flex-start;">Open Room</a>
         </section>
 
         <section class="tile" id="statToday">
@@ -56,13 +49,13 @@ if (document.getElementById('app')){
           <div class="stat__label">appointments</div>
         </section>
 
-        <section class="tile tile--ink" id="statPatients">
+        <section class="tile" id="statPatients">
           <div class="eyebrow">Total</div>
           <div class="stat__value">–</div>
           <div class="stat__label">patients seen</div>
         </section>
 
-        <section class="tile" id="statRating">
+        <section class="tile tile--ink" id="statRating">
           <div class="eyebrow">Rating</div>
           <div class="stat__value">–</div>
           <div class="stat__label">patient rating</div>
@@ -82,25 +75,18 @@ if (document.getElementById('app')){
             </a>
             <a class="qa-row" href="patient_records.html">
               <div class="qa-row__icon" style="background:var(--blue-tint);color:#3b6fd1;">${icon('records')}</div>
-              <div><div class="qa-row__title">Patient Records</div><div class="qa-row__sub">Review medical history</div></div>
+              <div><div class="qa-row__title">Patient Records &amp; Prescriptions</div><div class="qa-row__sub">Review history, write a prescription</div></div>
             </a>
-            <a class="qa-row" href="doctor_dashboard.html">
+            <a class="qa-row" href="doctor_appointments.html">
               <div class="qa-row__icon" style="background:var(--peach-tint);color:#d98a3d;">${icon('calendar')}</div>
-              <div><div class="qa-row__title">Manage Schedule</div><div class="qa-row__sub">Set your availability</div></div>
+              <div><div class="qa-row__title">Manage Schedule</div><div class="qa-row__sub">View and update appointments</div></div>
             </a>
           </div>
         </section>
 
-        <section class="tile tile--w2" id="notifTile">
+        <section class="tile tile--w3" id="notifTile">
           <div class="tile__head"><h3>Notifications</h3><a class="tile-link" href="#" id="markAllRead">Mark all read</a></div>
           <div class="list" id="notifList">${skeletonRows(2)}</div>
-        </section>
-
-        <section class="tile tile--ink connect-card">
-          <h3 style="font-size:18px;">Built for better care</h3>
-          <div class="connect-card__feature">${icon('check')} Patients you can trust</div>
-          <div class="connect-card__feature">${icon('check')} Records always on hand</div>
-          <div class="connect-card__feature">${icon('check')} Consults, just a click away</div>
         </section>
       </div>
     </main>

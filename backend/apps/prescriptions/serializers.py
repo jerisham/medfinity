@@ -22,10 +22,14 @@ class PrescriptionSerializer(serializers.ModelSerializer):
 
 class PrescriptionCreateSerializer(serializers.ModelSerializer):
     medicines = MedicineSerializer(many=True)
+    doctor_name = serializers.CharField(source='doctor.get_full_name', read_only=True)
+    patient_name = serializers.CharField(source='patient.get_full_name', read_only=True)
 
     class Meta:
         model = Prescription
-        fields = ['appointment', 'patient', 'diagnosis', 'notes', 'follow_up_date', 'medicines']
+        fields = ['id', 'appointment', 'patient', 'doctor_name', 'patient_name',
+                  'diagnosis', 'notes', 'follow_up_date', 'medicines', 'is_active', 'created_at']
+        read_only_fields = ['id', 'is_active', 'created_at']
 
     def create(self, validated_data):
         medicines_data = validated_data.pop('medicines')

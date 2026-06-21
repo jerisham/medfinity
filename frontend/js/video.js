@@ -65,7 +65,7 @@ if (document.getElementById('app')) {
               </div>
               <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Waiting for ${isDoctor ? 'patient' : 'doctor'}…</div>
               <div style="font-size:13px;opacity:.6;">Make sure your camera and microphone are allowed.</div>
-              <button class="btn btn--primary" id="joinCallBtn" style="margin-top:24px;">${icon('video')} Join Call</button>
+              <button class="btn btn--primary" id="joinCallBtn" style="margin-top:29px;">${icon('video')} Join Call</button>
             </div>
           </div>
 
@@ -109,8 +109,8 @@ if (document.getElementById('app')) {
 
           <!-- Notes -->
           <div class="video-panel-card">
-            <h3>${icon('notes','style="width:15px;height:15px;color:var(--emerald-hover);display:inline;margin-right:6px;"')} Session Notes</h3>
-            <textarea class="video-notes-area" id="sessionNotes" placeholder="Jot down notes during the consultation…"></textarea>
+            <h3>${icon('notes','style="width:8px;height:8px;color:var(--emerald-hover);display:inline;margin-right:6px;"')} Session Notes</h3>
+            <textarea class="video-notes-area" id="sessionNotes" placeholder="Note down notes during the consultation…"></textarea>
             <button class="btn btn--primary btn--sm" id="saveNotes">${icon('check')} Save Notes</button>
           </div>
 
@@ -133,14 +133,34 @@ function initVideo() {
   document.getElementById('saveNotes').addEventListener('click', saveNotes);
 }
 
-/* ── Local stream (Jitsi Integration) ───────────────────── */
+/* ── Dynamically load the right Jitsi External API script ─ */
+const loadedJitsiScripts = new Set();
+function loadJitsiScript(domain) {
+  return new Promise((resolve, reject) => {
+    if (loadedJitsiScripts.has(domain) || (window.JitsiMeetExternalAPI && document.querySelector(`script[data-jitsi-domain="${domain}"]`))) {
+      resolve();
+      return;
+    }
+    const existing = document.querySelector(`script[data-jitsi-domain="${domain}"]`);
+    if (existing) { existing.addEventListener('load', resolve); existing.addEventListener('error', reject); return; }
+    const script = document.createElement('script');
+    script.src = `https://${domain}/external_api.js`;
+    script.dataset.jitsiDomain = domain;
+    script.onload = () => { loadedJitsiScripts.add(domain); resolve(); };
+    script.onerror = () => reject(new Error(`Could not load the video call service from ${domain}.`));
+    document.head.appendChild(script);
+  });
+}
+
+/* ── Local stream (Jitsi / JaaS Integration) ────────────── */
 async function startLocalStream() {
   const joinBtn = document.getElementById('joinCallBtn');
   joinBtn.disabled = true; joinBtn.textContent = 'Connecting…';
 
   try {
-    const roomSuffix = currentAppt ? currentAppt.id : 'general-consultation';
-    const roomName = `medfinity-consultation-room-${roomSuffix}`;
+    if (!currentAppt) {
+      throw new Error('Select an appointment from the list on the right first.');
+    }
 
     // Clean up old Jitsi instance if it exists
     if (jitsiApi) {
@@ -148,9 +168,19 @@ async function startLocalStream() {
       jitsiApi = null;
     }
 
-    const domain = 'meet.jit.si';
+    // Ensure a room exists for this appointment (creates it on first join).
+    await ConsultationsAPI.createRoom(currentAppt.id);
+    // Fetch a per-user signed JWT: the doctor always joins as moderator, so the
+    // room never blocks waiting for one — this is what removes the
+    // "waiting for a moderator" screen patients used to see.
+    const join = await ConsultationsAPI.joinToken(currentAppt.id);
+
+    const domain = join.domain || 'meet.jit.si';
+    await loadJitsiScript(domain);
+
     const options = {
-      roomName: roomName,
+      roomName: join.room_name,
+      jwt: join.jwt || undefined, // omitted entirely when JaaS isn't configured yet
       parentNode: document.getElementById('remoteFeed'),
       width: '100%',
       height: '100%',
@@ -158,7 +188,7 @@ async function startLocalStream() {
         prejoinPageEnabled: false,
         disableDeepLinking: true,
         // Hide standard Jitsi control UI so our webpage buttons have complete control
-        toolbarButtons: [], 
+        toolbarButtons: [],
         settingsMap: {
           deviceSelection: false,
           moderator: false,
@@ -191,9 +221,11 @@ async function startLocalStream() {
     updateCamButton();
 
     jitsiApi.addEventListener('videoConferenceJoined', () => {
-      setCallStatus('connected', 'Connected via Jitsi API');
+      setCallStatus('connected', 'Connected via Jitsi');
       startCallTimer();
       joinBtn.style.display = 'none';
+      // Mark the consultation as started server-side (also flips appointment to in_progress).
+      ConsultationsAPI.start(currentAppt.id).catch(() => {});
     });
 
     jitsiApi.addEventListener('videoConferenceLeft', () => {
@@ -202,7 +234,7 @@ async function startLocalStream() {
   } catch (err) {
     joinBtn.disabled = false; joinBtn.textContent = '🎥 Join Call';
     document.getElementById('waitingState').style.display = 'flex';
-    showToast('Could not initialize Jitsi Meeting Service: ' + err.message, 'error');
+    showToast('Could not start the video call: ' + err.message, 'error');
   }
 }
 
@@ -243,6 +275,10 @@ function endCall(confirmLeave = true) {
     jitsiApi.executeCommand('hangup');
     jitsiApi.dispose();
     jitsiApi = null;
+  }
+
+  if (currentAppt) {
+    ConsultationsAPI.end(currentAppt.id).catch(() => {});
   }
 
   stopCallTimer();

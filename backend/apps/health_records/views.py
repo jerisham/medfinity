@@ -13,7 +13,12 @@ class HealthRecordListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         user = self.request.user
         if user.user_type == 'doctor':
-            return HealthRecord.objects.filter(shared_doctors=user) | HealthRecord.objects.filter(is_shared_with_doctor=True)
+            # NOTE: this used to also OR in `is_shared_with_doctor=True`,
+            # which is a record-level flag meaning "shared with *some*
+            # doctor" — not this one. That let any doctor list any other
+            # doctor's shared patient records. Only `shared_doctors=user`
+            # (the actual M2M of who it was shared with) should grant access.
+            return HealthRecord.objects.filter(shared_doctors=user)
         return HealthRecord.objects.filter(patient=user)
     
     def perform_create(self, serializer):
@@ -44,7 +49,14 @@ class VitalSignsListCreateView(generics.ListCreateAPIView):
 def share_record_with_doctor(request, pk):
     record = get_object_or_404(HealthRecord, pk=pk, patient=request.user)
     doctor_id = request.data.get('doctor_id')
-    record.shared_doctors.add(doctor_id)
+    if not doctor_id:
+        return Response({'error': 'doctor_id is required.'}, status=400)
+
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    doctor = get_object_or_404(User, pk=doctor_id, user_type='doctor')
+
+    record.shared_doctors.add(doctor)
     record.is_shared_with_doctor = True
     record.save()
     return Response({'message': 'Record shared successfully'})

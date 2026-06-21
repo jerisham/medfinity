@@ -6,6 +6,7 @@
 <title>Create account · Medfinity</title>
 <link rel="stylesheet" href="../css/main.css">
 <link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 </head>
 <body>
   <div class="auth">
@@ -92,6 +93,20 @@
             <label for="pharmacy_license">Pharmacy License Number</label>
             <input id="pharmacy_license" name="pharmacy_license" placeholder="e.g. PH-987654">
           </div>
+          <div class="field">
+            <label for="pharmacy_address">Pharmacy Address</label>
+            <textarea id="pharmacy_address" name="pharmacy_address" rows="2" placeholder="Street, area, city"></textarea>
+          </div>
+          <div class="field">
+            <label>Pin your pharmacy's exact location on the map</label>
+            <div style="font-size:12px;color:var(--ink-soft);margin-bottom:6px;">Search an address, use "Locate me", or click anywhere on the map. This is what patients' nearest-pharmacy matching is based on.</div>
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <input id="pharmacyMapSearch" placeholder="Search address…" style="flex:1;">
+              <button type="button" id="pharmacyLocateMe" class="btn btn--ghost btn--sm">📍 Locate me</button>
+            </div>
+            <div id="pharmacyMap" style="height:240px;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--glass-border);"></div>
+            <div id="pharmacyMapCoords" style="font-size:12px;color:var(--ink-soft);margin-top:6px;">No location selected yet.</div>
+          </div>
         </div>
 
         <div class="field">
@@ -105,6 +120,7 @@
     </div>
   </div>
 
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="../js/api.js"></script>
   <script src="../js/utils.js"></script>
   <script src="../js/auth.js"></script>
@@ -115,7 +131,72 @@
         this.value === 'doctor' ? 'block' : 'none';
       document.getElementById('pharmacyFields').style.display =
         this.value === 'pharmacist' ? 'block' : 'none';
+      if (this.value === 'pharmacist') initPharmacyMap();
     });
+
+    // ---- Pharmacy location picker (Leaflet + OpenStreetMap) ----
+    let pharmacyMap, pharmacyMarker;
+    window.pharmacyLocation = null; // { lat, lng } read by auth.js on submit
+
+    function initPharmacyMap() {
+      if (pharmacyMap) { pharmacyMap.invalidateSize(); return; }
+      pharmacyMap = L.map('pharmacyMap').setView([20.5937, 78.9629], 5); // India default view
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19,
+      }).addTo(pharmacyMap);
+
+      pharmacyMap.on('click', (e) => setPharmacyMarker(e.latlng.lat, e.latlng.lng));
+
+      document.getElementById('pharmacyLocateMe').addEventListener('click', () => {
+        if (!navigator.geolocation) return showToast('Geolocation not supported by this browser.', 'error');
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            pharmacyMap.setView([pos.coords.latitude, pos.coords.longitude], 16);
+            setPharmacyMarker(pos.coords.latitude, pos.coords.longitude);
+          },
+          () => showToast('Could not get your location. Pick it on the map instead.', 'error')
+        );
+      });
+
+      const searchInput = document.getElementById('pharmacyMapSearch');
+      let searchTimer;
+      searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); geocodeAddress(searchInput.value); }
+      });
+    }
+
+    function setPharmacyMarker(lat, lng) {
+      window.pharmacyLocation = { lat, lng };
+      if (pharmacyMarker) {
+        pharmacyMarker.setLatLng([lat, lng]);
+      } else {
+        pharmacyMarker = L.marker([lat, lng], { draggable: true }).addTo(pharmacyMap);
+        pharmacyMarker.on('dragend', () => {
+          const ll = pharmacyMarker.getLatLng();
+          window.pharmacyLocation = { lat: ll.lat, lng: ll.lng };
+          document.getElementById('pharmacyMapCoords').textContent =
+            `Selected: ${ll.lat.toFixed(5)}, ${ll.lng.toFixed(5)}`;
+        });
+      }
+      document.getElementById('pharmacyMapCoords').textContent =
+        `Selected: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+    }
+
+    // Free OSM Nominatim geocoder — turns a typed address into map coordinates.
+    async function geocodeAddress(query) {
+      if (!query.trim()) return;
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        if (!data.length) return showToast('Address not found. Try a more specific search or click the map.', 'error');
+        const { lat, lon } = data[0];
+        pharmacyMap.setView([parseFloat(lat), parseFloat(lon)], 16);
+        setPharmacyMarker(parseFloat(lat), parseFloat(lon));
+      } catch {
+        showToast('Could not search that address right now.', 'error');
+      }
+    }
   </script>
 </body>
 </html>

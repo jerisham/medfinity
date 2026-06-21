@@ -5,6 +5,7 @@ Django settings for Medfinity project.
 import sys
 from pathlib import Path
 
+
 # Add backend directory to Python path
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE_DIR))
@@ -41,7 +42,9 @@ DJANGO_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
+    'cloudinary',
 ]
 
 THIRD_PARTY_APPS = [
@@ -146,6 +149,32 @@ STATICFILES_DIRS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# --- Cloudinary (cloud file storage) ---
+# All FileField/ImageField uploads (profile pictures, health record documents,
+# prescription OCR scans, chat attachments) are stored in Cloudinary instead of
+# local disk, so they persist across deploys/restarts and are reachable from
+# anywhere — required for doctor/patient/pharmacy to all see the same files.
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME', ''),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY', ''),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET', ''),
+}
+# Only switch to Cloudinary storage when credentials are actually present —
+# otherwise fall back to local disk so `manage.py runserver` still works
+# out of the box without any cloud account configured.
+STORAGES = {
+    'default': {
+        'BACKEND': 'cloudinary_storage.storage.MediaCloudinaryStorage'
+                   if CLOUDINARY_STORAGE['CLOUD_NAME']
+                   else 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+    },
+}
+# DEFAULT_FILE_STORAGE is kept too for compatibility with the Django 4.2 pin in
+# requirements.txt and any third-party code that still reads the old setting.
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Django REST Framework
@@ -175,6 +204,15 @@ GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
 CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME', '')
 CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY', '')
 CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET', '')
+
+# --- Jitsi as a Service (JaaS / 8x8.vc) ---
+# Lets video consults work without a logged-in "moderator" account on meet.jit.si.
+# Sign up free at https://jaas.8x8.vc, create an App, add the public key from
+# backend/keys/jaas_public.pem, then fill in JAAS_APP_ID and JAAS_API_KEY_ID below.
+JAAS_APP_ID = os.getenv('JAAS_APP_ID', '')
+JAAS_API_KEY_ID = os.getenv('JAAS_API_KEY_ID', '')
+JAAS_PRIVATE_KEY_PATH = BASE_DIR / os.getenv('JAAS_PRIVATE_KEY_PATH', 'keys/jaas_private.pem')
+JAAS_DOMAIN = '8x8.vc'
 
 # Logging
 LOGGING = {

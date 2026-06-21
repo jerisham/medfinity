@@ -107,6 +107,8 @@ const UsersAPI = {
   doctorSearch:       (q)         => apiCall(`/users/doctors/?search=${encodeURIComponent(q)}`),
   doctor:             (id)        => apiCall(`/users/doctors/${id}/`),
   doctorAvailability: (id)        => apiCall(`/users/doctors/${id}/availability/`),
+  pharmacists:        (params='') => apiCall(`/users/pharmacists/${params}`),
+  nearbyPharmacists:  (lat, lng)  => apiCall(`/users/pharmacists/nearby/?lat=${lat}&lng=${lng}`),
 };
 
 /* ---------- Appointments ---------- */
@@ -146,11 +148,28 @@ const PrescriptionsAPI = {
 const PharmacyAPI = {
   orders:             ()           => apiCall('/pharmacy/orders/'),
   order:              (id)         => apiCall(`/pharmacy/orders/${id}/`),
-  updateStatus:       (id, status) => apiCall(`/pharmacy/orders/${id}/status/`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  createOrder:        (payload)    => apiCall('/pharmacy/orders/create/', { method: 'POST', body: JSON.stringify(payload) }),
+  updateStatus:       (id, status) => apiCall(`/pharmacy/orders/${id}/status/`, { method: 'POST', body: JSON.stringify({ status }) }),
   inventory:          ()           => apiCall('/pharmacy/inventory/'),
   addInventoryItem:   (payload)    => apiCall('/pharmacy/inventory/', { method: 'POST', body: JSON.stringify(payload) }),
   updateInventoryItem:(id, payload)=> apiCall(`/pharmacy/inventory/${id}/`, { method: 'PATCH', body: JSON.stringify(payload) }),
+  deleteInventoryItem:(id)         => apiCall(`/pharmacy/inventory/${id}/`, { method: 'DELETE' }),
   searchMedicines:    (q)          => apiCall(`/pharmacy/search/?q=${encodeURIComponent(q)}`),
+  // Patient: cancel their own pending order (uses the same retrieve/update
+  // endpoint the pharmacy uses — the backend scopes it to the requester's
+  // own orders either way).
+  cancelOrder:        (id)         => apiCall(`/pharmacy/orders/${id}/`, { method: 'PATCH', body: JSON.stringify({ status: 'cancelled' }) }),
+};
+
+/* ---------- Video Consultations (Jitsi / JaaS) ---------- */
+const ConsultationsAPI = {
+  createRoom:  (appointmentId) => apiCall(`/consultations/room/${appointmentId}/`, { method: 'POST' }),
+  joinToken:   (appointmentId) => apiCall(`/consultations/token/${appointmentId}/`),
+  details:     (appointmentId) => apiCall(`/consultations/details/${appointmentId}/`),
+  start:       (appointmentId) => apiCall(`/consultations/start/${appointmentId}/`, { method: 'POST' }),
+  end:         (appointmentId) => apiCall(`/consultations/end/${appointmentId}/`, { method: 'POST' }),
+  messages:    (consultationId) => apiCall(`/consultations/messages/${consultationId}/`),
+  sendMessage: (consultationId, message) => apiCall(`/consultations/messages/${consultationId}/`, { method: 'POST', body: JSON.stringify({ message }) }),
 };
 
 /* ---------- Notifications ---------- */
@@ -158,7 +177,10 @@ const NotificationsAPI = {
   list:        ()   => apiCall('/notifications/'),
   markRead:    (id) => apiCall(`/notifications/read/${id}/`, { method: 'POST' }),
   markAllRead: ()   => apiCall('/notifications/read-all/', { method: 'POST' }),
-  reminders:   ()   => apiCall('/notifications/reminders/'),
+  reminders:        ()         => apiCall('/notifications/reminders/'),
+  createReminder:   (payload)  => apiCall('/notifications/reminders/', { method: 'POST', body: JSON.stringify(payload) }),
+  updateReminder:   (id, payload) => apiCall(`/notifications/reminders/${id}/`, { method: 'PATCH', body: JSON.stringify(payload) }),
+  deleteReminder:   (id)       => apiCall(`/notifications/reminders/${id}/`, { method: 'DELETE' }),
 };
 
 /* ---------- AI services ---------- */
@@ -166,4 +188,5 @@ const AiAPI = {
   checkSymptoms:  (payload) => apiCall('/ai/symptom-checker/', { method: 'POST', body: JSON.stringify(payload) }),
   chat:           (message) => apiCall('/ai/chat/', { method: 'POST', body: JSON.stringify({ message }) }),
   recommendDoctor:(payload) => apiCall('/ai/recommend-doctor/', { method: 'POST', body: JSON.stringify(payload) }),
+  rankDoctors:    (payload) => apiCall('/ai/rank-doctors/', { method: 'POST', body: JSON.stringify(payload) }),
 };

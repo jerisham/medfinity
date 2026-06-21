@@ -61,8 +61,19 @@ if (registerForm){
     if (userType === 'pharmacist') {
       const pName = document.getElementById('pharmacy_name');
       const pLic  = document.getElementById('pharmacy_license');
+      const pAddr = document.getElementById('pharmacy_address');
       if (pName && pName.value.trim()) payload.pharmacy_name = pName.value.trim();
       if (pLic  && pLic.value.trim())  payload.pharmacy_license = pLic.value.trim();
+      if (pAddr && pAddr.value.trim()) payload.address = pAddr.value.trim();
+
+      if (!window.pharmacyLocation) {
+        errorBox.textContent = 'Please pin your pharmacy location on the map (search, "Locate me", or click the map).';
+        errorBox.classList.add('is-visible');
+        btn.disabled = false; btn.textContent = 'Create account';
+        return;
+      }
+      payload.latitude = window.pharmacyLocation.lat;
+      payload.longitude = window.pharmacyLocation.lng;
     }
 
     try {

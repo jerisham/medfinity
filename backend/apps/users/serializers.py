@@ -10,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
                   'specialization', 'license_number', 'experience_years', 'rating',
                   'consultation_fee', 'is_available', 'blood_group', 'allergies',
                   'chronic_conditions', 'emergency_contact', 'pharmacy_name',
-                  'pharmacy_license', 'created_at']
+                  'pharmacy_license', 'latitude', 'longitude', 'created_at']
         read_only_fields = ['id', 'rating', 'is_verified', 'created_at']
 
 
@@ -22,7 +22,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'email', 'password', 'password2', 'first_name', 'last_name',
                   'user_type', 'phone', 'date_of_birth', 'specialization', 'license_number',
-                  'pharmacy_name', 'pharmacy_license', 'experience_years', 'consultation_fee']
+                  'pharmacy_name', 'pharmacy_license', 'experience_years', 'consultation_fee',
+                  'latitude', 'longitude', 'address']
 
     def validate(self, attrs):
         password = attrs.get('password')
@@ -42,6 +43,13 @@ class DoctorListSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'first_name', 'last_name', 'specialization', 'experience_years',
                   'rating', 'consultation_fee', 'is_available', 'profile_picture']
+
+
+class PharmacistListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'first_name', 'last_name', 'pharmacy_name', 'pharmacy_license',
+                  'phone', 'address', 'profile_picture', 'latitude', 'longitude']
 
 
 class DoctorAvailabilitySerializer(serializers.ModelSerializer):

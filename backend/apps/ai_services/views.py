@@ -11,6 +11,63 @@ from django.core.files.base import ContentFile
 import os
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def rank_doctors(request):
+    """
+    Rank real, currently-available doctors by relevance to the patient's symptoms,
+    factoring in specialty match, experience, and rating (as advertised in the
+    Doctor Recommendation Engine feature). Optionally filter by specialty first.
+    """
+    from django.contrib.auth import get_user_model
+    symptoms = request.data.get('symptoms', [])
+    specialty = request.data.get('specialty')
+
+    if not symptoms:
+        return Response({'error': 'Symptoms are required'}, status=400)
+
+    User = get_user_model()
+    doctors_qs = User.objects.filter(user_type='doctor', is_available=True)
+    if specialty:
+        doctors_qs = doctors_qs.filter(specialization__icontains=specialty)
+    doctors_qs = doctors_qs.order_by('-rating')[:10]
+
+    if not doctors_qs.exists():
+        return Response({'response': 'No available doctors found matching your criteria right now.'})
+
+    doctors_list = [{
+        'id': d.id,
+        'name': d.get_full_name() or d.username,
+        'specialty': d.specialization or 'General Medicine',
+        'experience': d.experience_years,
+        'rating': float(d.rating),
+    } for d in doctors_qs]
+
+    recommender = DoctorRecommender()
+    result = recommender.rank_doctors(symptoms, doctors_list)
+
+    if result['success']:
+        import json
+        try:
+            ranked = json.loads(result['text'])
+            # Attach real doctor ids/fees back onto the ranked results for the frontend
+            by_name = {d['name']: d for d in doctors_list}
+            for entry in ranked:
+                match = by_name.get(entry.get('doctor_name'))
+                if match:
+                    entry['doctor_id'] = match['id']
+            return Response({'doctors': ranked})
+        except Exception:
+            return Response({'response': result['text']})
+
+    # Fallback: rating-sorted list with no AI reasoning
+    return Response({'doctors': [
+        {'doctor_name': d['name'], 'specialty': d['specialty'], 'doctor_id': d['id'],
+         'reasoning': 'Sorted by rating (AI ranking unavailable right now).'}
+        for d in doctors_list
+    ]})
+
+
+@api_view(['POST'])
 @permission_classes([AllowAny])  # Allow anyone to check symptoms
 def check_symptoms(request):
     """AI Symptom Checker endpoint."""

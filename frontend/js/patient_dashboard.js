@@ -36,8 +36,8 @@ if (document.getElementById('app')){
       <div class="bento" id="bento" style="grid-template-columns: 2fr 1.3fr 1.3fr;">
         <section class="tile tile--peach hero-card tile--w2" style="grid-column: span 1;">
           <h2 class="display">Quality care when you need it</h2>
-          <p>Book appointments, consult doctors, manage prescriptions and track your health — all in one seamless place.</p>
-          <a class="btn btn--primary" href="appointments.html" style="align-self:flex-start;">+ Book Appointment</a>
+          <p>Book appointments, consult doctors, manage prescriptions and track your health ,all in one seamless place.</p>
+          <a class="btn btn--primary btn--lg" href="appointments.html" style="align-self:flex-start;">${icon('calendar','style="width:16px;height:16px;"')} Book Appointment</a>
         </section>
 
         <section class="tile" id="apptTile">
@@ -65,22 +65,13 @@ if (document.getElementById('app')){
             </a>
             <a class="qa-row" href="prescriptions.html">
               <div class="qa-row__icon" style="background:var(--lilac-tint);color:#7c5cbf;">${icon('pill')}</div>
-              <div><div class="qa-row__title">My Prescriptions</div><div class="qa-row__sub">Active medications & rx</div></div>
+              <div><div class="qa-row__title">My Prescriptions</div><div class="qa-row__sub">Active medications &amp; order medicine</div></div>
             </a>
             <a class="qa-row" href="health_records.html">
               <div class="qa-row__icon" style="background:var(--green-tint);color:var(--emerald-hover);">${icon('records')}</div>
               <div><div class="qa-row__title">Health Records</div><div class="qa-row__sub">View your medical history</div></div>
             </a>
           </div>
-        </section>
-
-        <section class="tile" style="background:var(--lilac-tint);border-color:transparent;">
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
-            ${icon('pill','style="color:#7c5cbf;"')}
-          </div>
-          <h3 style="margin-bottom:6px;color:#7c5cbf;">Active Prescriptions</h3>
-          <p style="font-size:13px;color:var(--ink-soft);flex:1;margin:0 0 14px;">Review your active diagnoses, dosage plans, and medical advice.</p>
-          <a class="btn btn--primary btn--sm" href="prescriptions.html" style="align-self:flex-start;background:#7c5cbf;border-color:transparent;">View Prescriptions</a>
         </section>
 
         <section class="tile tile--w2" id="vitalsTile">
@@ -98,26 +89,9 @@ if (document.getElementById('app')){
           <div class="list" id="rxList">${skeletonRows(2)}</div>
         </section>
 
-        <section class="tile tile--ink connect-card tile--w2">
-          <h3 style="font-size:20px;">We connect your care</h3>
-          <div class="connect-card__feature">${icon('check')} Doctors you can trust</div>
-          <div class="connect-card__feature">${icon('check')} Care that comes to you</div>
-          <div class="connect-card__feature">${icon('check')} Medicines just a click away</div>
-        </section>
-
-        <section class="tile" id="notifTile">
+        <section class="tile tile--w3" id="notifTile">
           <div class="tile__head"><h3>Notifications</h3><a class="tile-link" href="#" id="markAllRead">Mark all read</a></div>
           <div class="list" id="notifList">${skeletonRows(2)}</div>
-        </section>
-
-        <section class="tile tile--w3">
-          <div class="tile__head"><h3>How Medfinity Works</h3></div>
-          <div class="steps">
-            <div class="step"><div class="step__icon">${icon('search')}</div><div><div class="step__title">1. Find a Doctor</div><div class="step__sub">Search and choose the right specialist</div></div></div>
-            <div class="step"><div class="step__icon">${icon('calendar')}</div><div><div class="step__title">2. Book Appointment</div><div class="step__sub">Pick a time that suits you</div></div></div>
-            <div class="step"><div class="step__icon">${icon('headset')}</div><div><div class="step__title">3. Consult &amp; Get Care</div><div class="step__sub">Visit the clinic or consult online</div></div></div>
-            <div class="step"><div class="step__icon">${icon('box')}</div><div><div class="step__title">4. Get Medicines</div><div class="step__sub">Order from our partner pharmacies</div></div></div>
-          </div>
         </section>
       </div>
     </main>

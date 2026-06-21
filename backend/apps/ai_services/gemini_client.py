@@ -4,9 +4,12 @@ Uses the new google-genai package.
 """
 import os
 import json
+import logging
 from google import genai
 from google.genai import types
 from django.conf import settings
+
+logger = logging.getLogger(__name__)
 
 class GeminiClient:
     """Wrapper for Google Gen AI SDK interactions."""
@@ -14,17 +17,22 @@ class GeminiClient:
     def __init__(self, api_key=None):
         self.api_key = api_key or settings.GEMINI_API_KEY
         if not self.api_key or self.api_key == 'your-gemini-api-key-here':
+            logger.warning("GeminiClient: no API key configured, using mock/fallback responses.")
             self.is_mock = True
             self.client = None
         else:
             self.is_mock = False
             try:
                 self.client = genai.Client(api_key=self.api_key)
-            except Exception:
+            except Exception as e:
+                logger.error("GeminiClient: failed to initialize genai.Client: %s", e, exc_info=True)
                 self.is_mock = True
                 self.client = None
         # Default model
-        self.model = 'gemini-2.0-flash-lite'
+        # NOTE: gemini-2.0-flash-lite was retired by Google on June 1, 2026 — using it
+        # causes every request to fail with a 404, which this class swallows and
+        # replaces with a generic fallback message.
+        self.model = 'gemini-2.5-flash-lite'
 
     def _get_fallback_text(self, prompt):
         if "rank" in prompt.lower() or "suitability" in prompt.lower() or "doctors" in prompt.lower():
@@ -164,6 +172,7 @@ class GeminiClient:
             }
         except Exception as e:
             err_str = str(e)
+            logger.error("GeminiClient.chat failed: %s", err_str, exc_info=True)
             if '429' in err_str or 'RESOURCE_EXHAUSTED' in err_str or 'quota' in err_str.lower():
                 return {
                     'text': self._get_fallback_chat(messages),
