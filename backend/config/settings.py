@@ -24,7 +24,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 # settings.py
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".vercel.app", ".now.sh"] # Change in production
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".vercel.app", ".now.sh", "medfinity.vercel.app"] # Change in production
 
 SECURE_SSL_REDIRECT = False
 
