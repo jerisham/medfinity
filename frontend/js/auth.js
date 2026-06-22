@@ -16,7 +16,7 @@ if (loginForm){
       const type = user.user_type === 'pharmacist' ? 'pharmacy'
                : user.user_type === 'caregiver'   ? 'patient'
                : user.user_type;
-      window.location.href = `/pages/${type}_dashboard.html`;
+      window.location.href = `/${type}_dashboard.html`;
     } catch (err){
       errorBox.textContent = err.message || 'Incorrect username or password.';
       errorBox.classList.add('is-visible');
