@@ -223,7 +223,15 @@ button{ font-family: inherit; }
   display: flex; align-items: center; justify-content: center;
   border: 2px solid var(--white);
 }
-.topbar__profile{ display: flex; align-items: center; gap: 10px; }
+.topbar__profile{
+    display:flex; align-items:center; gap:10px;
+    border:1px solid var(--glass-border);
+    border-radius:99px;
+    padding:6px 14px 6px 6px;
+    background:var(--white);
+    transition:border-color .15s ease;
+  }
+  .topbar__profile:hover{ border-color:var(--emerald); }
 .topbar__profile-name{ font-size: 13.5px; font-weight: 700; color: var(--forest-deep); line-height:1.2; }
 .topbar__profile-role{ font-size: 11.5px; color: var(--ink-soft); font-weight: 500; }
 
