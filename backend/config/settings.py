@@ -156,9 +156,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Serve the frontend folder as additional static files
 FRONTEND_DIR = BASE_DIR / 'frontend'
-STATICFILES_DIRS = [
-    FRONTEND_DIR,
-]
+STATICFILES_DIRS = [FRONTEND_DIR] if FRONTEND_DIR.exists() else []
 
 # Media files (for uploads)
 MEDIA_URL = '/media/'
