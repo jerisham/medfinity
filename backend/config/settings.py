@@ -105,7 +105,9 @@ ASGI_APPLICATION = 'config.asgi.application'
 import urllib.parse
 
 if os.environ.get('DATABASE_URL'):
+    import urllib.parse
     _db_url = urllib.parse.urlparse(os.environ['DATABASE_URL'])
+    _db_params = urllib.parse.parse_qs(_db_url.query)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -114,13 +116,9 @@ if os.environ.get('DATABASE_URL'):
             'PASSWORD': _db_url.password,
             'HOST': _db_url.hostname,
             'PORT': _db_url.port,
-        }
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'OPTIONS': {
+                'sslmode': _db_params.get('sslmode', ['require'])[0],
+            },
         }
     }
 # For PostgreSQL (uncomment when ready):
