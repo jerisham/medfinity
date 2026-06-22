@@ -1,13 +1,10 @@
-"""
-Vercel serverless entry point for Medfinity Django app.
-Vercel looks for api/index.py and calls the `app` variable.
-"""
-import sys
 import os
+import sys
 
-# Add the backend directory to Python path so Django can find config/settings.py
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
+# Add backend to path
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
+# Django setup
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
 from django.core.wsgi import get_wsgi_application
