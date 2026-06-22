@@ -26,7 +26,7 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 # settings.py
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".vercel.app", ".now.sh", "medfinity.vercel.app"] # Change in production
 
-SECURE_SSL_REDIRECT = False
+SECURE_SSL_REDIRECT = not DEBUG
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
