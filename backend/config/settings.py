@@ -127,6 +127,10 @@ else:
             'NAME': '/tmp/db.sqlite3',
         }
     }
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.vercel.app",
+]
 # For PostgreSQL (uncomment when ready):
 # DATABASES = {
 #     'default': {
