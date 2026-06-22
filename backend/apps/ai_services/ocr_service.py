@@ -1,7 +1,6 @@
 """
 OCR Service using Tesseract + Gemini for prescription extraction.
 """
-import pytesseract
 from PIL import Image
 import re
 from django.conf import settings
@@ -15,6 +14,10 @@ class OCRService:
 
     def extract_text(self, image_path):
         """Extract text using Tesseract OCR."""
+        try:
+            import pytesseract
+        except Exception:
+            return {'text': 'OCR unavailable on this server.', 'confidence': 0.0, 'word_count': 0, 'medicines': []}
         try:
             image = Image.open(image_path)
             text = pytesseract.image_to_string(image)
@@ -37,6 +40,10 @@ class OCRService:
 
     def extract_text_from_image(self, image_file):
         """Extract text from an uploaded image file (InMemoryUploadedFile)."""
+        try:
+            import pytesseract
+        except Exception:
+            return {'text': 'OCR unavailable on this server.', 'confidence': 0.0, 'word_count': 0, 'medicines': []}
         try:
             image = Image.open(image_file)
             text = pytesseract.image_to_string(image)
