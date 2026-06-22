@@ -26,7 +26,7 @@
     },
     {
       "src": "/",
-      "dest": "/frontend/index.html"
+      "dest": "/frontend/pages/login.html"
     },
     {
       "src": "/pages/(.*)",
@@ -39,10 +39,6 @@
     {
       "src": "/js/(.*)",
       "dest": "/frontend/js/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "api/index.py"
     }
   ]
 }
