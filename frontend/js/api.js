@@ -96,7 +96,7 @@ const Auth = {
   },
   logout(){
     clearSession();
-    window.location.href = '/pages/login.html';
+    window.location.href = '/index.html';
   }
 };
 
