@@ -5,14 +5,14 @@
 function requireAuth(allowedTypes){
   const user = getCurrentUser();
   if (!getAccessToken() || !user){
-    window.location.href = '/pages/login.html';
+    window.location.href = '/login.html';
     return null;
   }
   if (allowedTypes && !allowedTypes.includes(user.user_type)){
     const type = user.user_type === 'pharmacist' ? 'pharmacy'
                : user.user_type === 'caregiver'   ? 'patient'
                : user.user_type;
-    window.location.href = `/pages/${type}_dashboard.html`;
+    window.location.href = `/${type}_dashboard.html`;
     return null;
   }
   return user;
