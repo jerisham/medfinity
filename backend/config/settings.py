@@ -186,7 +186,7 @@ STORAGES = {
                    else 'django.core.files.storage.FileSystemStorage',
     },
     'staticfiles': {
-        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',  # ← CHANGE THIS
     },
 }
 # DEFAULT_FILE_STORAGE is kept too for compatibility with the Django 4.2 pin in
