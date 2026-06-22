@@ -121,6 +121,13 @@ if os.environ.get('DATABASE_URL'):
             },
         }
     }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': '/tmp/db.sqlite3',
+        }
+    }
 # For PostgreSQL (uncomment when ready):
 # DATABASES = {
 #     'default': {
