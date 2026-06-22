@@ -3,9 +3,9 @@
    Wired to backend/config/urls.py + each app's urls.py
 =================================================================== */
 
-const API_BASE = window.location.hostname === 'localhost'
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
   ? 'http://localhost:8000/api'
-  : 'https://medfinity.vercel.app/api';
+  : `${window.location.origin}/api`;
 
 function getAccessToken(){ return localStorage.getItem('medfinity_access'); }
 function getRefreshToken(){ return localStorage.getItem('medfinity_refresh'); }
