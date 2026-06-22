@@ -157,7 +157,7 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Serve the frontend folder as additional static files
-FRONTEND_DIR = BASE_DIR.parent / 'frontend'
+FRONTEND_DIR = BASE_DIR / 'frontend'
 STATICFILES_DIRS = [
     FRONTEND_DIR,
 ]
