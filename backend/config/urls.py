@@ -9,20 +9,10 @@ from django.shortcuts import redirect
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 def serve_frontend_root(request):
-    """
-    Redirect the site root to /static/index.html.
-    Frontend files (index.html, pages/, css/, js/) live in STATICFILES_DIRS
-    and are copied into STATIC_ROOT by `collectstatic`, which Vercel runs
-    automatically at build time and serves from its CDN under STATIC_URL.
-    Redirecting here (instead of reading the file in this view) means the
-    request never depends on the frontend directory being present in the
-    deployed function's filesystem at runtime.
-    """
-    return redirect(f'{settings.STATIC_URL.rstrip("/")}/index.html')
+    return redirect('/pages/login.html')
 
 def serve_frontend_file(request, path):
-    """Redirect any other frontend-style path to its /static/ equivalent."""
-    return redirect(f'{settings.STATIC_URL.rstrip("/")}/{path}')
+    return redirect(f'/{path}')
 
 urlpatterns = [
     path('', serve_frontend_root, name='frontend'),
