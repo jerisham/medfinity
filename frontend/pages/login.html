@@ -1,39 +1,1106 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Log in · Medfinity</title>
-<link rel="stylesheet" href="../css/main.css">
-<link rel="stylesheet" href="../css/components.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medfinity — Your Health, Connected</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
+
+    :root {
+      --white:        #ffffff;
+      --green-light:  #e8f5ee;
+      --green-mid:    #4db87a;
+      --green-main:   #2ea05a;
+      --green-deep:   #1a6e3e;
+      --green-dark:   #0f4527;
+      --red:          #d93025;
+      --red-soft:     #fdecea;
+      --brown:        #6b3a2a;
+      --brown-light:  #f5ede8;
+      --black:        #0d1f14;
+      --ink:          #14201b;
+      --ink-soft:     #4a6055;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--white);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ===== NAV ===== */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; width: 100%;
+      padding: 18px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 9999;
+      transition: background 0.35s, box-shadow 0.35s;
+    }
+    .nav.scrolled {
+      background: rgba(255,255,255,0.97);
+      box-shadow: 0 2px 20px rgba(15,69,39,0.10);
+    }
+    .nav__brand {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: var(--white);
+      letter-spacing: -0.03em;
+      transition: color 0.35s;
+      text-decoration: none;
+    }
+    .nav.scrolled .nav__brand { color: var(--green-deep); }
+    .nav__links {
+      display: flex;
+      gap: 6px;
+      list-style: none;
+    }
+    .nav__links a {
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.88);
+      padding: 7px 16px;
+      border-radius: 24px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .nav__links a:hover {
+      background: rgba(255,255,255,0.18);
+      color: var(--white);
+    }
+    .nav.scrolled .nav__links a { color: var(--ink-soft); }
+    .nav.scrolled .nav__links a:hover { background: var(--green-light); color: var(--green-deep); }
+    .nav__cta {
+      background: var(--white) !important;
+      color: var(--green-deep) !important;
+      font-weight: 700 !important;
+    }
+    .nav.scrolled .nav__cta {
+      background: var(--green-main) !important;
+      color: var(--white) !important;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      position: relative;
+      height: 100vh;
+      min-height: 620px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero__bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(160deg, #0d3b24 0%, #145c37 40%, #1a7a49 70%, #0f4527 100%);
+      z-index: 0;
+    }
+    .hero__grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(78,200,130,0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(78,200,130,0.07) 1px, transparent 1px);
+      background-size: 50px 50px;
+      z-index: 1;
+    }
+    .hero__orb {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .hero__orb--1 {
+      width: 520px; height: 520px;
+      top: -120px; right: -80px;
+      background: radial-gradient(circle, rgba(46,160,90,0.28) 0%, transparent 70%);
+    }
+    .hero__orb--2 {
+      width: 380px; height: 380px;
+      bottom: -60px; left: 5%;
+      background: radial-gradient(circle, rgba(78,200,130,0.18) 0%, transparent 70%);
+    }
+    .hero__orb--3 {
+      width: 200px; height: 200px;
+      top: 30%; left: 42%;
+      background: radial-gradient(circle, rgba(180,255,210,0.10) 0%, transparent 70%);
+    }
+    .hero__ecg {
+      position: absolute;
+      bottom: 22%;
+      left: 0;
+      width: 100%;
+      z-index: 3;
+      opacity: 0.18;
+    }
+    .hero__float {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      pointer-events: none;
+    }
+    .float-icon {
+      position: absolute;
+      opacity: 0.12;
+      font-size: 3.5rem;
+      animation: floatUp linear infinite;
+    }
+    .float-icon:nth-child(1)  { left: 8%;   bottom: -80px; animation-duration: 14s; animation-delay: 0s;   font-size: 2.8rem; }
+    .float-icon:nth-child(2)  { left: 20%;  bottom: -80px; animation-duration: 18s; animation-delay: 3s;   font-size: 3.8rem; }
+    .float-icon:nth-child(3)  { left: 35%;  bottom: -80px; animation-duration: 12s; animation-delay: 1.5s; font-size: 2.4rem; }
+    .float-icon:nth-child(4)  { left: 52%;  bottom: -80px; animation-duration: 16s; animation-delay: 5s;   font-size: 4rem;   }
+    .float-icon:nth-child(5)  { left: 68%;  bottom: -80px; animation-duration: 11s; animation-delay: 2s;   font-size: 2.6rem; }
+    .float-icon:nth-child(6)  { left: 80%;  bottom: -80px; animation-duration: 19s; animation-delay: 7s;   font-size: 3.2rem; }
+    .float-icon:nth-child(7)  { left: 92%;  bottom: -80px; animation-duration: 13s; animation-delay: 4s;   font-size: 2.9rem; }
+    @keyframes floatUp {
+      0%   { transform: translateY(0) rotate(0deg); opacity: 0.08; }
+      20%  { opacity: 0.14; }
+      80%  { opacity: 0.12; }
+      100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+    }
+    .hero__cross {
+      position: absolute;
+      z-index: 4;
+      pointer-events: none;
+    }
+    .hero__content {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      color: var(--white);
+      padding: 0 24px;
+      max-width: 780px;
+    }
+    .hero__pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 40px;
+      padding: 6px 18px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 28px;
+      backdrop-filter: blur(8px);
+    }
+    .hero__pill-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #6bffaa;
+      box-shadow: 0 0 8px #6bffaa;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.8); }
+    }
+    .hero__h1 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 900;
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      margin-bottom: 22px;
+    }
+    .hero__h1 span {
+      background: linear-gradient(135deg, #7fffc4 0%, #c5ffdb 50%, #a0ffe0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero__sub {
+      font-size: 1.12rem;
+      font-weight: 400;
+      color: rgba(255,255,255,0.72);
+      line-height: 1.65;
+      max-width: 520px;
+      margin: 0 auto 36px;
+    }
+    .hero__actions {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-hero-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--white);
+      color: var(--green-deep);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 0.97rem;
+      padding: 14px 30px;
+      border-radius: 50px;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    }
+    .btn-hero-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.25); }
+    .btn-hero-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--white);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      font-size: 0.97rem;
+      padding: 13px 28px;
+      border-radius: 50px;
+      border: 1.5px solid rgba(255,255,255,0.38);
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .btn-hero-ghost:hover { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.65); }
+    .hero__scroll {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,0.55);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      animation: scrollBounce 2.2s ease-in-out infinite;
+    }
+    @keyframes scrollBounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* ===== STATS BAR ===== */
+    .stats {
+      background: var(--green-dark);
+      padding: 28px 60px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .stat-item {
+      flex: 1;
+      min-width: 160px;
+      max-width: 220px;
+      text-align: center;
+      padding: 16px 24px;
+      border-right: 1px solid rgba(255,255,255,0.10);
+      color: var(--white);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #7fffc4;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-label { font-size: 0.78rem; color: rgba(255,255,255,0.55); font-weight: 500; }
+
+    /* ===== SECTIONS ===== */
+    .section { padding: 100px 60px; }
+    .section--alt { background: var(--green-light); }
+    .section--dark { background: var(--green-dark); color: var(--white); }
+
+    .section__label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--green-main);
+      margin-bottom: 14px;
+    }
+    .section--dark .section__label { color: #7fffc4; }
+    .section__title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: clamp(2rem, 3.5vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--green-dark);
+      max-width: 520px;
+      line-height: 1.15;
+      margin-bottom: 18px;
+    }
+    .section--dark .section__title { color: var(--white); }
+    .section__body {
+      font-size: 1.02rem;
+      color: var(--ink-soft);
+      line-height: 1.7;
+      max-width: 460px;
+      margin-bottom: 36px;
+    }
+    .section--dark .section__body { color: rgba(255,255,255,0.65); }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+      max-width: 1140px;
+      margin: 0 auto;
+    }
+    .two-col--reverse { direction: rtl; }
+    .two-col--reverse > * { direction: ltr; }
+
+    /* Feature panels */
+    .feature-panel {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 0 16px 56px rgba(15,69,39,0.12);
+      position: relative;
+      overflow: hidden;
+    }
+    .section--dark .feature-panel {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .feature-panel::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 160px; height: 160px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(46,160,90,0.12) 0%, transparent 70%);
+    }
+    .feature-icon-row { display: flex; gap: 14px; margin-bottom: 24px; flex-wrap: wrap; }
+    .ficon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+    .ficon--green { background: var(--green-light); }
+    .ficon--red   { background: var(--red-soft); }
+    .ficon--brown { background: var(--brown-light); }
+
+    .feature-panel h3 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--green-dark);
+      margin-bottom: 10px;
+    }
+    .section--dark .feature-panel h3 { color: var(--white); }
+    .feature-panel p { font-size: 0.92rem; color: var(--ink-soft); line-height: 1.6; }
+    .section--dark .feature-panel p { color: rgba(255,255,255,0.6); }
+
+    .pulse-card {
+      background: var(--green-light);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .pulse-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--green-main);
+      box-shadow: 0 0 0 4px rgba(46,160,90,0.2);
+      flex-shrink: 0;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    .pulse-text { font-size: 0.85rem; color: var(--green-deep); font-weight: 500; }
+
+    .vitals-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .vital-chip {
+      background: var(--green-light);
+      border-radius: 12px;
+      padding: 14px 12px;
+      text-align: center;
+    }
+    .vital-chip .num {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--green-deep);
+    }
+    .vital-chip .lbl { font-size: 0.72rem; color: var(--ink-soft); margin-top: 2px; }
+
+    .appt-list { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+    .appt-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #f7fdf9;
+      border-radius: 12px;
+      padding: 12px 16px;
+      border-left: 3px solid var(--green-main);
+    }
+    .appt-item.urgent { border-left-color: var(--red); background: var(--red-soft); }
+    .appt-dot {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--green-light);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+    .appt-dot.red-dot { background: var(--red-soft); }
+    .appt-info { flex: 1; }
+    .appt-info .name { font-size: 0.88rem; font-weight: 600; color: var(--ink); }
+    .appt-info .time { font-size: 0.78rem; color: var(--ink-soft); }
+    .appt-tag { font-size: 0.72rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; background: var(--green-light); color: var(--green-deep); }
+    .appt-tag.red { background: var(--red-soft); color: var(--red); }
+
+    /* Features grid */
+    .features-grid { max-width: 1140px; margin: 0 auto; }
+    .features-grid__header { text-align: center; margin-bottom: 60px; }
+    .cards-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .card3 {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 32px 28px;
+      border: 1.5px solid rgba(46,160,90,0.18);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .card3:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(15,69,39,0.12); }
+    .card3__icon {
+      width: 54px; height: 54px;
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.7rem;
+      margin-bottom: 20px;
+    }
+    .card3__icon--g { background: var(--green-light); }
+    .card3__icon--r { background: var(--red-soft); }
+    .card3__icon--b { background: var(--brown-light); }
+    .card3 h4 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--green-dark);
+      margin-bottom: 10px;
+    }
+    .card3 p { font-size: 0.9rem; color: var(--ink-soft); line-height: 1.6; }
+
+    /* Testimonial */
+    .testi-wrap { max-width: 820px; margin: 0 auto; text-align: center; }
+    .quote-mark {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 5rem;
+      line-height: 0.6;
+      color: rgba(46,160,90,0.25);
+      margin-bottom: 18px;
+      display: block;
+    }
+    .testi-text {
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: var(--white);
+      line-height: 1.6;
+      margin-bottom: 28px;
+      font-style: italic;
+    }
+    .testi-author { font-size: 0.9rem; color: rgba(255,255,255,0.5); }
+    .testi-author strong { color: #7fffc4; font-weight: 600; }
+
+    /* Wave dividers */
+    .wave-divider { display: block; width: 100%; overflow: hidden; line-height: 0; }
+    .wave-divider svg { display: block; width: 100%; }
+
+    /* ===== LOGIN SECTION ===== */
+    .login-section {
+      background: var(--green-light);
+      padding: 100px 24px 120px;
+      position: relative;
+      overflow: hidden;
+    }
+    .login-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(46,160,90,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(46,160,90,0.06) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .login-section::after {
+      content: '';
+      position: absolute;
+      top: -200px; right: -200px;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(46,160,90,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .login-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 460px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .login-inner .section__label { text-align: center; }
+    .login-inner .section__title {
+      text-align: center;
+      max-width: 100%;
+      font-size: 2.2rem;
+      margin: 0 auto 8px;
+    }
+    .login-inner .section__body {
+      text-align: center;
+      max-width: 100%;
+      margin: 0 auto 36px;
+    }
+
+    /* AUTH CARD — unchanged logic, redesigned shell */
+    .auth__card {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 44px 40px 36px;
+      box-shadow:
+        0 2px 4px rgba(15,69,39,0.04),
+        0 20px 60px rgba(15,69,39,0.12),
+        0 0 0 1px rgba(46,160,90,0.10);
+      text-align: left;
+    }
+    .auth__mark {
+      width: 50px; height: 50px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--green-main), var(--green-deep));
+      color: var(--white);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 900;
+      font-size: 1.4rem;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 22px;
+      box-shadow: 0 4px 12px rgba(46,160,90,0.4);
+    }
+    .auth__card h1 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.55rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--green-dark);
+      margin-bottom: 6px;
+    }
+    .auth__card .sub { font-size: 0.9rem; color: var(--ink-soft); margin-bottom: 28px; }
+    .form-error {
+      background: var(--red-soft);
+      border: 1px solid rgba(217,48,37,0.25);
+      color: var(--red);
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .form-error.is-visible { display: block; }
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block;
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 7px;
+    }
+    .field input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid #d6e8dd;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: 'Inter', sans-serif;
+      color: var(--ink);
+      background: #f7fdf9;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    .field input:focus {
+      border-color: var(--green-main);
+      box-shadow: 0 0 0 3px rgba(46,160,90,0.14);
+      background: var(--white);
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 13px 22px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.18s, box-shadow 0.18s;
+      text-decoration: none;
+    }
+    .btn--primary {
+      background: linear-gradient(135deg, var(--green-main), var(--green-deep));
+      color: var(--white);
+      box-shadow: 0 4px 16px rgba(46,160,90,0.3);
+    }
+    .btn--primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 22px rgba(46,160,90,0.42);
+    }
+    .btn--primary:disabled { opacity: 0.62; cursor: not-allowed; }
+    .btn--block { width: 100%; margin-top: 8px; }
+    .auth__footer {
+      margin-top: 22px;
+      text-align: center;
+      font-size: 0.86rem;
+      color: var(--ink-soft);
+    }
+    .auth__footer a { color: var(--green-main); font-weight: 600; text-decoration: none; }
+    .auth__footer a:hover { text-decoration: underline; }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      background: var(--black);
+      color: rgba(255,255,255,0.45);
+      text-align: center;
+      padding: 32px 24px;
+      font-size: 0.82rem;
+    }
+    .footer strong { color: #7fffc4; font-weight: 600; }
+
+    /* ===== SCROLL REVEAL ===== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.in-view { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.12s; }
+    .reveal-delay-2 { transition-delay: 0.24s; }
+    .reveal-delay-3 { transition-delay: 0.36s; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .nav { padding: 14px 24px; }
+      .nav__links { display: none; }
+      .section { padding: 70px 24px; }
+      .stats { padding: 24px; }
+      .two-col { grid-template-columns: 1fr; gap: 40px; }
+      .two-col--reverse { direction: ltr; }
+      .cards-3 { grid-template-columns: 1fr; }
+      .auth__card { padding: 32px 24px 28px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .float-icon, .hero__scroll, .pulse-dot, .hero__pill-dot { animation: none !important; }
+      .reveal { opacity: 1; transform: none; transition: none; }
+    }
+  </style>
 </head>
 <body>
-  <div class="auth">
-    <div class="auth__card">
-      <div class="auth__mark">M</div>
-      <h1>Welcome back</h1>
-      <p class="sub">Log in to pick up where you left off.</p>
 
-      <div class="form-error" id="loginError"></div>
+  <!-- NAV -->
+  <nav class="nav" id="mainNav">
+    <a href="#" class="nav__brand">Medfinity</a>
+    <ul class="nav__links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#how-it-works">How it works</a></li>
+      <li><a href="#login" class="nav__cta">Log in</a></li>
+    </ul>
+  </nav>
 
-      <form id="loginForm">
-        <div class="field">
-          <label for="username">Username</label>
-          <input id="username" name="username" type="text" autocomplete="username" required>
-        </div>
-        <div class="field">
-          <label for="password">Password</label>
-          <input id="password" name="password" type="password" autocomplete="current-password" required>
-        </div>
-        <button class="btn btn--primary btn--block" type="submit" id="loginBtn">Log in</button>
-      </form>
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero__bg" id="paraBg"></div>
+    <div class="hero__grid" id="paraGrid"></div>
+    <div class="hero__orb hero__orb--1" id="paraOrb1"></div>
+    <div class="hero__orb hero__orb--2" id="paraOrb2"></div>
+    <div class="hero__orb hero__orb--3" id="paraOrb3"></div>
 
-      <div class="auth__footer">New to Medfinity? <a href="register.html">Create an account</a></div>
+    <!-- ECG heartbeat line -->
+    <svg class="hero__ecg" viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <polyline
+        points="0,50 120,50 150,50 165,10 180,70 195,10 210,50 260,50 320,50 350,50 365,5 380,68 395,5 410,50 460,50 580,50 610,50 625,12 640,68 655,12 670,50 720,50 840,50 870,50 885,8 900,70 915,8 930,50 980,50 1100,50 1130,50 1145,14 1160,68 1175,14 1190,50 1240,50 1440,50"
+        fill="none" stroke="rgba(127,255,196,1)" stroke-width="1.8"
+        stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+    <!-- Floating medical icons -->
+    <div class="hero__float">
+      <div class="float-icon">🧬</div>
+      <div class="float-icon">💊</div>
+      <div class="float-icon">🩺</div>
+      <div class="float-icon">🏥</div>
+      <div class="float-icon">⚕️</div>
+      <div class="float-icon">🩻</div>
+      <div class="float-icon">💉</div>
+    </div>
+
+    <!-- Decorative plus signs -->
+    <svg class="hero__cross" style="top:15%;left:8%;width:28px;opacity:.09" viewBox="0 0 28 28"><rect x="11" y="0" width="6" height="28" rx="3" fill="white"/><rect x="0" y="11" width="28" height="6" rx="3" fill="white"/></svg>
+    <svg class="hero__cross" style="top:60%;right:10%;width:20px;opacity:.09" viewBox="0 0 28 28"><rect x="11" y="0" width="6" height="28" rx="3" fill="white"/><rect x="0" y="11" width="28" height="6" rx="3" fill="white"/></svg>
+    <svg class="hero__cross" style="top:28%;right:22%;width:16px;opacity:.09" viewBox="0 0 28 28"><rect x="11" y="0" width="6" height="28" rx="3" fill="white"/><rect x="0" y="11" width="28" height="6" rx="3" fill="white"/></svg>
+    <svg class="hero__cross" style="bottom:28%;left:18%;width:22px;opacity:.09" viewBox="0 0 28 28"><rect x="11" y="0" width="6" height="28" rx="3" fill="white"/><rect x="0" y="11" width="28" height="6" rx="3" fill="white"/></svg>
+
+    <div class="hero__content" id="paraContent">
+      <div class="hero__pill">
+        <span class="hero__pill-dot"></span>
+        Trusted by 50,000+ patients
+      </div>
+      <h1 class="hero__h1">
+        Healthcare that<br>
+        <span>keeps up with you</span>
+      </h1>
+      <p class="hero__sub">
+        Appointments, prescriptions, records, and real-time consultations — all in one place. Your health, always at hand.
+      </p>
+      <div class="hero__actions">
+        <a href="#login" class="btn-hero-primary">
+          Get started
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="#features" class="btn-hero-ghost">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M6 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          See features
+        </a>
+      </div>
+    </div>
+
+    <div class="hero__scroll" aria-hidden="true">
+      <span>Scroll</span>
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 3v12M4 11l5 5 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+  </section>
+
+  <!-- STATS BAR -->
+  <div class="stats">
+    <div class="stat-item reveal">
+      <div class="stat-num">50k+</div>
+      <div class="stat-label">Active patients</div>
+    </div>
+    <div class="stat-item reveal reveal-delay-1">
+      <div class="stat-num">1,200+</div>
+      <div class="stat-label">Verified doctors</div>
+    </div>
+    <div class="stat-item reveal reveal-delay-2">
+      <div class="stat-num">98%</div>
+      <div class="stat-label">Satisfaction rate</div>
+    </div>
+    <div class="stat-item reveal reveal-delay-3">
+      <div class="stat-num">24/7</div>
+      <div class="stat-label">Always available</div>
     </div>
   </div>
 
+  <!-- WAVE -->
+  <div class="wave-divider" style="background:var(--green-dark)">
+    <svg viewBox="0 0 1440 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,0 C360,56 1080,0 1440,40 L1440,56 L0,56 Z" fill="#e8f5ee"/>
+    </svg>
+  </div>
+
+  <!-- FEATURE 1 — Patient Dashboard -->
+  <section class="section section--alt" id="features">
+    <div class="two-col">
+      <div class="reveal">
+        <p class="section__label">For patients</p>
+        <h2 class="section__title">Your complete health picture, always accessible</h2>
+        <p class="section__body">Track vitals, view medical history, manage prescriptions, and schedule appointments — no more paper trails or phone queues.</p>
+        <a href="#login" class="btn btn--primary" style="display:inline-flex;gap:8px;">
+          Access your records
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div class="feature-panel">
+          <div class="feature-icon-row">
+            <div class="ficon ficon--green">❤️</div>
+            <div class="ficon ficon--red">🩸</div>
+            <div class="ficon ficon--brown">🧪</div>
+          </div>
+          <h3>Live Health Dashboard</h3>
+          <p>All your vitals and recent results in one glanceable view.</p>
+          <div class="vitals-row">
+            <div class="vital-chip"><div class="num">72</div><div class="lbl">BPM</div></div>
+            <div class="vital-chip"><div class="num">118/78</div><div class="lbl">BP</div></div>
+            <div class="vital-chip"><div class="num">98%</div><div class="lbl">SpO₂</div></div>
+          </div>
+          <div class="pulse-card">
+            <div class="pulse-dot"></div>
+            <div class="pulse-text">All vitals within healthy range · Last checked today</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WAVE -->
+  <div class="wave-divider" style="background:var(--green-light)">
+    <svg viewBox="0 0 1440 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,40 C480,0 960,56 1440,14 L1440,56 L0,56 Z" fill="white"/>
+    </svg>
+  </div>
+
+  <!-- FEATURE 2 — Doctor Tools -->
+  <section class="section" style="background:white;">
+    <div class="two-col two-col--reverse">
+      <div class="reveal">
+        <p class="section__label">For doctors</p>
+        <h2 class="section__title">Focus on care, not paperwork</h2>
+        <p class="section__body">Manage appointments, write digital prescriptions, view full patient histories, and run video consultations — all from one streamlined workspace.</p>
+        <a href="register.html" class="btn btn--primary" style="display:inline-flex;gap:8px;">
+          Join as a doctor
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div class="feature-panel">
+          <div class="feature-icon-row">
+            <div class="ficon ficon--green">🩺</div>
+          </div>
+          <h3>Today's Appointments</h3>
+          <p>Patients waiting, their urgency, and their notes — right here.</p>
+          <div class="appt-list">
+            <div class="appt-item">
+              <div class="appt-dot">👤</div>
+              <div class="appt-info">
+                <div class="name">Priya Menon</div>
+                <div class="time">09:30 AM · Follow-up</div>
+              </div>
+              <span class="appt-tag">Confirmed</span>
+            </div>
+            <div class="appt-item urgent">
+              <div class="appt-dot red-dot">⚠️</div>
+              <div class="appt-info">
+                <div class="name">Arjun Sharma</div>
+                <div class="time">10:15 AM · Chest pain</div>
+              </div>
+              <span class="appt-tag red">Urgent</span>
+            </div>
+            <div class="appt-item">
+              <div class="appt-dot">👤</div>
+              <div class="appt-info">
+                <div class="name">Lakshmi Rao</div>
+                <div class="time">11:00 AM · Lab review</div>
+              </div>
+              <span class="appt-tag">Confirmed</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WAVE -->
+  <div class="wave-divider" style="background:white">
+    <svg viewBox="0 0 1440 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,20 C480,56 960,0 1440,30 L1440,56 L0,56 Z" fill="var(--green-dark)"/>
+    </svg>
+  </div>
+
+  <!-- DARK SECTION — Pharmacy + Testimonial -->
+  <section class="section section--dark" id="how-it-works">
+    <div class="two-col" style="margin-bottom:80px">
+      <div class="reveal">
+        <p class="section__label">Pharmacy network</p>
+        <h2 class="section__title">Prescriptions delivered, automatically</h2>
+        <p class="section__body">Digital prescriptions flow directly to your chosen pharmacy. Track order status, set reminders, and never miss a refill again.</p>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div class="feature-panel">
+          <div class="feature-icon-row">
+            <div class="ficon ficon--green">💊</div>
+            <div class="ficon ficon--brown">🏪</div>
+          </div>
+          <h3>Active Prescriptions</h3>
+          <p>Real-time status from your pharmacy partner.</p>
+          <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;gap:12px;background:rgba(127,255,196,0.08);border-radius:12px;padding:12px 14px;">
+              <span style="font-size:1.2rem">💊</span>
+              <div style="flex:1">
+                <div style="font-size:.88rem;font-weight:600;color:#fff">Metformin 500mg</div>
+                <div style="font-size:.76rem;color:rgba(255,255,255,.5)">28 days · Refill in 5 days</div>
+              </div>
+              <span style="background:rgba(127,255,196,.15);color:#7fffc4;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px">Active</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;background:rgba(217,48,37,0.08);border-radius:12px;padding:12px 14px;border-left:3px solid #d93025">
+              <span style="font-size:1.2rem">⏰</span>
+              <div style="flex:1">
+                <div style="font-size:.88rem;font-weight:600;color:#fff">Atorvastatin 10mg</div>
+                <div style="font-size:.76rem;color:rgba(255,255,255,.5)">30 days · Refill due today</div>
+              </div>
+              <span style="background:rgba(217,48,37,.15);color:#ff6b6b;font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px">Renew</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="testi-wrap reveal">
+      <span class="quote-mark">"</span>
+      <p class="testi-text">
+        Medfinity changed how I manage my parents' health. I can track their appointments, see lab results, and speak to their doctor on video — all without leaving home.
+      </p>
+      <p class="testi-author"><strong>Kavitha Nair</strong> · Caregiver, Chennai</p>
+    </div>
+  </section>
+
+  <!-- WAVE -->
+  <div class="wave-divider" style="background:var(--green-dark)">
+    <svg viewBox="0 0 1440 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,0 C360,56 1080,0 1440,40 L1440,56 L0,56 Z" fill="#e8f5ee"/>
+    </svg>
+  </div>
+
+  <!-- FEATURES GRID -->
+  <section class="section section--alt">
+    <div class="features-grid">
+      <div class="features-grid__header reveal">
+        <p class="section__label" style="text-align:center">Everything you need</p>
+        <h2 class="section__title" style="text-align:center;max-width:100%">Built for every role in healthcare</h2>
+        <p class="section__body" style="text-align:center;max-width:560px;margin:0 auto 0">Whether you're a patient, doctor, pharmacist, or caregiver — Medfinity has the right tools for you.</p>
+      </div>
+      <div style="height:52px"></div>
+      <div class="cards-3">
+        <div class="card3 reveal">
+          <div class="card3__icon card3__icon--g">📅</div>
+          <h4>Smart Scheduling</h4>
+          <p>Book, reschedule, or cancel appointments in seconds. Doctors confirm in real time.</p>
+        </div>
+        <div class="card3 reveal reveal-delay-1">
+          <div class="card3__icon card3__icon--r">🎥</div>
+          <h4>Video Consultations</h4>
+          <p>Secure, encrypted video calls with your doctor. No travel needed, no waiting rooms.</p>
+        </div>
+        <div class="card3 reveal reveal-delay-2">
+          <div class="card3__icon card3__icon--b">📋</div>
+          <h4>Digital Records</h4>
+          <p>Your complete medical history — lab results, diagnoses, imaging — all searchable.</p>
+        </div>
+        <div class="card3 reveal">
+          <div class="card3__icon card3__icon--g">🔔</div>
+          <h4>Medication Reminders</h4>
+          <p>Never miss a dose. Set smart reminders that adapt to your daily routine.</p>
+        </div>
+        <div class="card3 reveal reveal-delay-1">
+          <div class="card3__icon card3__icon--r">🤖</div>
+          <h4>AI Health Assistant</h4>
+          <p>Ask health questions, understand reports, and get symptom guidance any time of day.</p>
+        </div>
+        <div class="card3 reveal reveal-delay-2">
+          <div class="card3__icon card3__icon--b">🔒</div>
+          <h4>Privacy First</h4>
+          <p>Your data is encrypted, private, and never shared without explicit consent.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WAVE -->
+  <div class="wave-divider" style="background:#e8f5ee">
+    <svg viewBox="0 0 1440 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,30 C480,56 960,0 1440,20 L1440,56 L0,56 Z" fill="#e8f5ee"/>
+    </svg>
+  </div>
+
+  <!-- LOGIN SECTION -->
+  <section class="login-section" id="login">
+    <div class="login-inner">
+      <p class="section__label">Ready to start?</p>
+      <h2 class="section__title">Log in to Medfinity</h2>
+      <p class="section__body">Access your dashboard, appointments, and health records.</p>
+
+      <div class="auth__card reveal">
+        <div class="auth__mark">M</div>
+        <h1>Welcome back</h1>
+        <p class="sub">Log in to pick up where you left off.</p>
+
+        <div class="form-error" id="loginError"></div>
+
+        <form id="loginForm">
+          <div class="field">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" autocomplete="username" required placeholder="Enter your username">
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Enter your password">
+          </div>
+          <button class="btn btn--primary btn--block" type="submit" id="loginBtn">Log in</button>
+        </form>
+
+        <div class="auth__footer">New to Medfinity? <a href="register.html">Create an account</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <p>© 2026 <strong>Medfinity</strong> · Healthcare, reimagined · All rights reserved</p>
+  </footer>
+
+  <!-- Original auth scripts — untouched -->
   <script src="../js/api.js"></script>
   <script src="../js/utils.js"></script>
   <script src="../js/auth.js"></script>
+
+  <script>
+    /* ===== PARALLAX ===== */
+    const paraGrid    = document.getElementById('paraGrid');
+    const paraOrb1    = document.getElementById('paraOrb1');
+    const paraOrb2    = document.getElementById('paraOrb2');
+    const paraOrb3    = document.getElementById('paraOrb3');
+    const paraContent = document.getElementById('paraContent');
+    const nav         = document.getElementById('mainNav');
+
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const y = window.scrollY;
+          if (y > 60) nav.classList.add('scrolled');
+          else nav.classList.remove('scrolled');
+          paraGrid.style.transform    = `translateY(${y * 0.25}px)`;
+          paraOrb1.style.transform    = `translateY(${y * 0.35}px)`;
+          paraOrb2.style.transform    = `translateY(${y * 0.20}px)`;
+          paraOrb3.style.transform    = `translateY(${y * 0.55}px)`;
+          paraContent.style.transform = `translateY(${y * 0.42}px)`;
+          paraContent.style.opacity   = Math.max(0, 1 - y / 480);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    });
+
+    /* ===== SCROLL REVEAL ===== */
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in-view'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  </script>
 </body>
 </html>

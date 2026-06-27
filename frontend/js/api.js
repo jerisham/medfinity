@@ -58,7 +58,7 @@ async function apiCall(endpoint, options = {}, _retry = true){
     const refreshed = await refreshAccessToken();
     if (refreshed) return apiCall(endpoint, options, false);
     clearSession();
-    window.location.href = 'login.html';
+    window.location.href = '/pages/login.html';
     return;
   }
 
@@ -96,7 +96,7 @@ const Auth = {
   },
   logout(){
     clearSession();
-    window.location.href = '/login.html';
+    window.location.href = '/pages/login.html';
   }
 };
 
