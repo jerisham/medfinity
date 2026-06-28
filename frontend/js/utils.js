@@ -12,7 +12,7 @@ function requireAuth(allowedTypes){
     const type = user.user_type === 'pharmacist' ? 'pharmacy'
                : user.user_type === 'caregiver'   ? 'patient'
                : user.user_type;
-    window.location.href = `/pages/${type}_dashboard.html`;
+    window.location.href = `/${type}_dashboard.html`;
     return null;
   }
   return user;
