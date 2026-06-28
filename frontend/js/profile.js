@@ -31,7 +31,6 @@ if (document.getElementById('app')) {
         <!-- Edit Profile Form -->
         <section class="tile" style="padding: 24px;">
           <h3 style="margin-bottom: 20px; color:var(--forest-deep); display:flex; align-items:center; gap:8px;">
-            ${icon('user', 'style="color:var(--emerald);width:20px;height:20px;"')}
             Personal Details
           </h3>
           
