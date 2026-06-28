@@ -3,7 +3,7 @@
    Enables viewing and editing user specific account details.
 =================================================================== */
 
-const user = requireAuth(['patient', 'doctor', 'pharmacist', 'caregiver']);
+const user = requireAuth(['patient', 'doctor', 'pharmacist']);
 
 const ICONS = {
   user: '<path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 7a4 4 0 110-8 4 4 0 010 8z"/>',
@@ -15,7 +15,7 @@ const icon = (name, attrs='') => `<svg ${attrs} viewBox="0 0 24 24" fill="none" 
 let profileData = null;
 
 if (document.getElementById('app')) {
-  const roleName = user.user_type === 'pharmacist' ? 'pharmacy' : user.user_type;
+  const roleName = user.user_type;
   // 'profile' is not a sidebar nav key — use 'dashboard' so no link gets wrongly highlighted
   document.getElementById('app').innerHTML = `
     ${renderSidebar('dashboard', roleName)}
