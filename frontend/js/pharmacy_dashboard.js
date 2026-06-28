@@ -51,7 +51,7 @@ if (document.getElementById('app')){
         hideSearch: true
       })}
 
-      <div class="bento" id="bento" style="grid-template-columns: 1.8fr 1.1fr 1.1fr;">
+      <div class="bento bento--pharmacy" id="bento">
         <section class="tile tile--peach hero-card">
           <h2 class="display">Every order, looked after</h2>
           <p>Track incoming prescriptions, manage stock and keep deliveries moving — all in one place.</p>
@@ -107,9 +107,9 @@ if (document.getElementById('app')){
         <h3 style="margin-bottom:6px; font-size:21px; color:var(--forest-deep);">Manage Inventory</h3>
         <p style="font-size:13px; color:var(--ink-soft); margin:0 0 20px;">Add new medicines, restock existing items, or remove discontinued ones.</p>
 
-        <div style="display:grid; grid-template-columns: 1.1fr 1.6fr; gap:24px;">
+        <div class="inv-modal-grid">
           <!-- Left: Add Medicine Form -->
-          <form id="addMedForm" style="border-right: 1px solid var(--glass-border); padding-right:20px;">
+          <form id="addMedForm" class="inv-modal-form">
             <h4 style="font-size:13.5px; margin:0 0 12px; color:var(--forest-deep); font-weight:700;">Add New Medicine</h4>
             <div class="field">
               <label for="invName">Medicine Name</label>

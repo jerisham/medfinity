@@ -27,7 +27,7 @@ if (document.getElementById('app')) {
         hideSearch: user.user_type === 'doctor' || user.user_type === 'pharmacist'
       })}
 
-      <div class="bento" style="grid-template-columns: 1.8fr 1fr; gap: 24px; align-items: start;">
+      <div class="bento bento--profile" style="gap: 24px; align-items: start;">
         <!-- Edit Profile Form -->
         <section class="tile" style="padding: 24px;">
           <h3 style="margin-bottom: 20px; color:var(--forest-deep); display:flex; align-items:center; gap:8px;">

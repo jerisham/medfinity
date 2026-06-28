@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Create your Medfinity account as a patient, doctor, or pharmacist.">
 <title>Create account · Medfinity</title>
 <link rel="stylesheet" href="../css/main.css">
 <link rel="stylesheet" href="../css/components.css">
@@ -106,10 +107,10 @@
             <label>Pin your pharmacy's exact location on the map</label>
             <div style="font-size:12px;color:var(--ink-soft);margin-bottom:6px;">Search an address, use "Locate me", or click anywhere on the map. This is what patients' nearest-pharmacy matching is based on.</div>
             <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
-              <input id="pharmacyMapSearch" placeholder="Search address…" style="flex:1;min-width:160px;">
+              <input id="pharmacyMapSearch" placeholder="Search address…" style="flex:1;min-width:140px;padding:10px 12px;border:1px solid var(--glass-border);border-radius:var(--radius-sm);font-size:13px;font-family:var(--font-body);">
               <button type="button" id="pharmacyLocateMe" class="btn btn--ghost btn--sm">📍 Locate me</button>
             </div>
-            <div id="pharmacyMap" style="height:240px;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--glass-border);"></div>
+            <div id="pharmacyMap" style="height:clamp(180px, 40vw, 260px);border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--glass-border);"></div>
             <div id="pharmacyMapCoords" style="font-size:12px;color:var(--ink-soft);margin-top:6px;">No location selected yet.</div>
           </div>
         </div>

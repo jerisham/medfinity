@@ -109,9 +109,9 @@ if (document.getElementById('app')) {
 
           <!-- Notes -->
           <div class="video-panel-card">
-            <h3>${icon('notes','style="width:8px;height:8px;color:var(--emerald-hover);display:inline;margin-right:6px;"')} Session Notes</h3>
+            <h3>Session Notes</h3>
             <textarea class="video-notes-area" id="sessionNotes" placeholder="Note down notes during the consultation…"></textarea>
-            <button class="btn btn--primary btn--sm" id="saveNotes">${icon('check')} Save Notes</button>
+            <button class="btn btn--primary btn--sm" id="saveNotes">Save Notes</button>
           </div>
 
         </div>

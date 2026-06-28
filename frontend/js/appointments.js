@@ -222,7 +222,7 @@ function renderBookingForm(doc) {
   const maxDate = new Date(); maxDate.setMonth(maxDate.getMonth() + 2);
 
   content.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div class="grid-2col">
       <div>
         <div class="preview-row" style="margin-bottom:20px;">
           <div class="avatar">${initials(name)}</div>

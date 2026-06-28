@@ -33,7 +33,7 @@ if (document.getElementById('app')) {
         hideSearch: true
       })}
 
-      <div class="bento" style="grid-template-columns: 1fr 1.8fr; gap: 24px; align-items: start;">
+      <div class="bento bento--rx">
         <!-- Left: Patients List -->
         <section class="tile" style="padding: 20px 24px; min-height: 520px;">
           <div class="tile__head" style="margin-bottom: 18px;">
@@ -264,7 +264,7 @@ function renderPatientDetail(p) {
       ${vitalsHtml}
     </div>
 
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:20px;">
+    <div class="grid-2col" style="margin-top:20px;">
       <div>
         <h4 style="font-size:13.5px; color:var(--forest-deep); font-weight:700; margin-bottom:6px;">Chronic Conditions</h4>
         <div style="display:flex; flex-wrap:wrap;">${conditionsHtml}</div>

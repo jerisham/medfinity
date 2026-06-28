@@ -12,7 +12,7 @@ function requireAuth(allowedTypes){
     const type = user.user_type === 'pharmacist' ? 'pharmacy'
                : user.user_type === 'caregiver'   ? 'patient'
                : user.user_type;
-    window.location.href = `/${type}_dashboard.html`;
+    window.location.href = `/pages/${type}_dashboard.html`;
     return null;
   }
   return user;
@@ -115,12 +115,6 @@ function renderSidebar(activeKey, role){
   return `
     <aside class="sidebar" id="sidebar">
       <div class="sidebar__brand">
-        <div class="sidebar__mark">
-          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M32 55C32 55 7 40 7 22.5C7 13.4 14.6 7 22.6 7C26.8 7 30.2 9 32 12.6C33.8 9 37.2 7 41.4 7C49.4 7 57 13.4 57 22.5C57 40 32 55 32 55Z" fill="#ffffff"/>
-            <path d="M27.5 22h9v7.5H44v9h-7.5V46h-9v-7.5H20v-9h7.5V22Z" fill="#1c8557"/>
-          </svg>
-        </div>
         <div class="sidebar__brand-text">
           <div class="sidebar__brand-name">Medfinity</div>
           <div class="sidebar__brand-tag">Care. Connect. Comfort.</div>
@@ -136,10 +130,6 @@ function renderSidebar(activeKey, role){
             <span>${label}</span>
           </a>`).join('')}
       </nav>
-      <div class="sidebar__footer">
-        <div class="sidebar__footer-title">Better health every day</div>
-        <div class="sidebar__footer-sub">Small steps today for a healthier tomorrow.</div>
-      </div>
       <button class="sidebar__logout" onclick="Auth.logout()" title="Log out">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
         <span>Log out</span>
@@ -190,10 +180,6 @@ function renderTopbar({ title, sub, user, notifCount = 0, rightContent = '', hid
       ${searchBar}
       <div class="topbar__right">
         ${rightContent}
-        <div class="topbar__bell">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
-          ${notifCount > 0 ? `<span class="topbar__bell-dot">${notifCount}</span>` : ''}
-        </div>
         <a class="topbar__profile" href="profile.html" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
           <div class="avatar avatar--sm">${initials(displayName)}</div>
           <div>

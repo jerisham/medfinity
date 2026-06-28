@@ -37,7 +37,7 @@ if (document.getElementById('app')) {
           ${skeletonVitalCards(5)}
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div class="grid-2col">
 
           <!-- Prescriptions -->
           <section class="tile" style="padding:20px 24px;">
@@ -82,7 +82,7 @@ if (document.getElementById('app')) {
         </section>
 
         <!-- Conditions & allergies -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+        <div class="grid-2col">
           <section class="tile" style="padding:20px 24px;">
             <div class="tile__head" style="margin-bottom:14px;">
               <h3>Chronic Conditions</h3>

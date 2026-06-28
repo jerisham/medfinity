@@ -33,7 +33,7 @@ if (document.getElementById('app')) {
         user
       })}
 
-      <div class="bento" style="grid-template-columns: 1fr 1.5fr; gap: 24px; align-items: start;">
+      <div class="bento bento--rx">
         <!-- Left: Prescriptions List -->
         <section class="tile" style="padding: 20px 24px; min-height: 480px;">
           <div class="tile__head" style="margin-bottom: 18px;">

@@ -33,7 +33,7 @@ if (document.getElementById('app')){
         user
       })}
 
-      <div class="bento" id="bento" style="grid-template-columns: 2fr 1.3fr 1.3fr;">
+      <div class="bento bento--dash" id="bento">
         <section class="tile tile--peach hero-card tile--w2" style="grid-column: span 1;">
           <h2 class="display">Quality care when you need it</h2>
           <p>Book appointments, consult doctors, manage prescriptions and track your health ,all in one seamless place.</p>

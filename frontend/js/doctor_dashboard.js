@@ -31,7 +31,7 @@ if (document.getElementById('app')){
         hideSearch: true
       })}
 
-      <div class="bento" id="bento" style="grid-template-columns: 2fr 1.3fr 1.3fr;">
+      <div class="bento bento--dash" id="bento">
         <section class="tile tile--peach hero-card">
           <h2 class="display">Steady hands, steady day</h2>
           <p>Review your schedule, jump into consults and keep patient care moving — all in one place.</p>
