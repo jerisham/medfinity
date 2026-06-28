@@ -262,7 +262,22 @@
   .steps{ grid-template-columns: repeat(2, 1fr); }
   .vitals-grid{ grid-template-columns: repeat(2,1fr); }
   .doctor-grid{ grid-template-columns: 1fr; }
-  .chat-layout{ grid-template-columns: 1fr; }
+  .chat-layout{ grid-template-columns: 1fr; height:auto; }
+  .chat-sidebar{ max-height: 320px; }
+  .video-layout{ grid-template-columns: 1fr; height:auto; }
+  .video-stage{ min-height: 320px; aspect-ratio: 16/9; }
+  .records-grid{ grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+}
+@media (max-width: 640px){
+  .specialty-grid{ grid-template-columns: repeat(2, 1fr); }
+  .health-grid{ grid-template-columns: repeat(2,1fr); gap:8px; }
+  .vitals-grid{ grid-template-columns: repeat(2,1fr); }
+  .steps{ grid-template-columns: 1fr; }
+  .doctor-grid, .records-grid{ grid-template-columns: 1fr; }
+  .field-row{ flex-direction: column; gap:0; }
+  .appt-searchbar{ min-width: 0; max-width: none; width:100%; }
+  .order-card-row__top{ flex-direction: column; }
+  .video-panel{ order: -1; }
 }
 
 /* =====================================================================

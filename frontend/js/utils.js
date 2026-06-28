@@ -113,17 +113,23 @@ function renderSidebar(activeKey, role){
   };
   const items = links[role] || links.patient;
   return `
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="sidebar__brand">
         <div class="sidebar__mark">
-          <span style="font-family:var(--font-display);font-weight:900;font-size:20px;color:#fff;letter-spacing:-1px;">M</span>
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M32 55C32 55 7 40 7 22.5C7 13.4 14.6 7 22.6 7C26.8 7 30.2 9 32 12.6C33.8 9 37.2 7 41.4 7C49.4 7 57 13.4 57 22.5C57 40 32 55 32 55Z" fill="#ffffff"/>
+            <path d="M27.5 22h9v7.5H44v9h-7.5V46h-9v-7.5H20v-9h7.5V22Z" fill="#1c8557"/>
+          </svg>
         </div>
         <div class="sidebar__brand-text">
           <div class="sidebar__brand-name">Medfinity</div>
           <div class="sidebar__brand-tag">Care. Connect. Comfort.</div>
         </div>
+        <button class="sidebar__toggle" id="sidebarToggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
       </div>
-      <nav class="sidebar__nav">
+      <nav class="sidebar__nav" id="sidebarNav">
         ${items.map(([key, href, path, label]) => `
           <a class="sidebar__link${key === activeKey ? ' is-active' : ''}" href="${href}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg>
@@ -139,6 +145,28 @@ function renderSidebar(activeKey, role){
         <span>Log out</span>
       </button>
     </aside>`;
+}
+
+/** Wires the mobile sidebar hamburger toggle (only relevant below the 1080px breakpoint). */
+function initSidebarToggle(){
+  const toggle = document.getElementById('sidebarToggle');
+  const sidebar = document.getElementById('sidebar');
+  if (!toggle || !sidebar) return;
+  toggle.addEventListener('click', () => {
+    const isOpen = sidebar.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', String(isOpen));
+  });
+  // Close the mobile menu when a nav link is tapped
+  sidebar.querySelectorAll('.sidebar__link').forEach(link => {
+    link.addEventListener('click', () => {
+      sidebar.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+}
+document.addEventListener('DOMContentLoaded', () => initSidebarToggle());
+if (document.readyState !== 'loading') {
+  setTimeout(initSidebarToggle, 50);
 }
 
 /**

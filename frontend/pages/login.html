@@ -59,6 +59,15 @@
       text-decoration: none;
     }
     .nav.scrolled .nav__brand { color: var(--green-deep); }
+    .signup-btn{
+      background: var(--white) !important;
+      color: var(--green-deep) !important;
+      font-weight: 700 !important;
+    }
+    .nav.scrolled .signup-btn { 
+      background: var(--green-deep) !important;
+      color: var(--white) !important;
+    }
     .nav__links {
       display: flex;
       gap: 6px;
@@ -79,15 +88,6 @@
     }
     .nav.scrolled .nav__links a { color: var(--ink-soft); }
     .nav.scrolled .nav__links a:hover { background: var(--green-light); color: var(--green-deep); }
-    .nav__cta {
-      background: var(--white) !important;
-      color: var(--green-deep) !important;
-      font-weight: 700 !important;
-    }
-    .nav.scrolled .nav__cta {
-      background: var(--green-main) !important;
-      color: var(--white) !important;
-    }
 
     /* ===== HERO ===== */
     .hero {
@@ -181,29 +181,6 @@
       padding: 0 24px;
       max-width: 780px;
     }
-    .hero__pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.22);
-      border-radius: 40px;
-      padding: 6px 18px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.9);
-      margin-bottom: 28px;
-      backdrop-filter: blur(8px);
-    }
-    .hero__pill-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: #6bffaa;
-      box-shadow: 0 0 8px #6bffaa;
-      animation: pulse 2s ease-in-out infinite;
-    }
     @keyframes pulse {
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.6; transform: scale(0.8); }
@@ -289,34 +266,6 @@
       0%, 100% { transform: translateX(-50%) translateY(0); }
       50% { transform: translateX(-50%) translateY(8px); }
     }
-
-    /* ===== STATS BAR ===== */
-    .stats {
-      background: var(--green-dark);
-      padding: 28px 60px;
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .stat-item {
-      flex: 1;
-      min-width: 160px;
-      max-width: 220px;
-      text-align: center;
-      padding: 16px 24px;
-      border-right: 1px solid rgba(255,255,255,0.10);
-      color: var(--white);
-    }
-    .stat-item:last-child { border-right: none; }
-    .stat-num {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 2rem;
-      font-weight: 800;
-      color: #7fffc4;
-      line-height: 1;
-      margin-bottom: 4px;
-    }
-    .stat-label { font-size: 0.78rem; color: rgba(255,255,255,0.55); font-weight: 500; }
 
     /* ===== SECTIONS ===== */
     .section { padding: 100px 60px; }
@@ -594,13 +543,11 @@
       border-radius: 14px;
       background: linear-gradient(135deg, var(--green-main), var(--green-deep));
       color: var(--white);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-weight: 900;
-      font-size: 1.4rem;
       display: flex; align-items: center; justify-content: center;
       margin-bottom: 22px;
       box-shadow: 0 4px 12px rgba(46,160,90,0.4);
     }
+    .auth__mark svg { width: 28px; height: 28px; }
     .auth__card h1 {
       font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: 1.55rem;
@@ -703,18 +650,49 @@
     .reveal-delay-3 { transition-delay: 0.36s; }
 
     /* ===== RESPONSIVE ===== */
+    .nav__toggle {
+      display: none;
+      width: 38px; height: 38px;
+      align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.28);
+      border-radius: 10px;
+      color: var(--white);
+      cursor: pointer;
+    }
+    .nav.scrolled .nav__toggle { background: var(--green-light); border-color: transparent; color: var(--green-deep); }
+    .nav__toggle svg { width: 18px; height: 18px; }
     @media (max-width: 900px) {
       .nav { padding: 14px 24px; }
-      .nav__links { display: none; }
+      .nav__toggle { display: flex; }
+      .nav__links {
+        position: absolute;
+        top: 100%; left: 0; right: 0;
+        flex-direction: column;
+        gap: 2px;
+        background: var(--white);
+        box-shadow: 0 12px 32px rgba(15,69,39,0.16);
+        padding: 10px;
+        border-radius: 0 0 16px 16px;
+        display: none;
+      }
+      .nav.is-open .nav__links { display: flex; }
+      .nav__links a { color: var(--ink-soft) !important; padding: 12px 16px; border-radius: 10px; }
+      .nav__links a:hover { background: var(--green-light) !important; color: var(--green-deep) !important; }
       .section { padding: 70px 24px; }
-      .stats { padding: 24px; }
       .two-col { grid-template-columns: 1fr; gap: 40px; }
       .two-col--reverse { direction: ltr; }
       .cards-3 { grid-template-columns: 1fr; }
       .auth__card { padding: 32px 24px 28px; }
     }
+    @media (max-width: 480px) {
+      .hero__actions { flex-direction: column; width: 100%; }
+      .btn-hero-primary, .btn-hero-ghost { justify-content: center; width: 100%; }
+      .login-inner { padding: 0 4px; }
+      .auth__card { padding: 28px 20px 24px; }
+    }
     @media (prefers-reduced-motion: reduce) {
-      .float-icon, .hero__scroll, .pulse-dot, .hero__pill-dot { animation: none !important; }
+      .float-icon, .hero__scroll, .pulse-dot { animation: none !important; }
       .reveal { opacity: 1; transform: none; transition: none; }
     }
   </style>
@@ -725,10 +703,14 @@
   <nav class="nav" id="mainNav">
     <a href="#" class="nav__brand">Medfinity</a>
     <ul class="nav__links">
+      <li><a href="#">Home</a></li>
+      <li><a href="#about">About</a></li>
       <li><a href="#features">Features</a></li>
-      <li><a href="#how-it-works">How it works</a></li>
-      <li><a href="#login" class="nav__cta">Log in</a></li>
+      <li><a class="signup-btn" href="register.html">Sign up</a></li>
     </ul>
+    <button class="nav__toggle" id="navToggle" type="button" aria-label="Toggle menu" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
   </nav>
 
   <!-- HERO -->
@@ -764,10 +746,6 @@
     <svg class="hero__cross" style="bottom:28%;left:18%;width:22px;opacity:.09" viewBox="0 0 28 28"><rect x="11" y="0" width="6" height="28" rx="3" fill="white"/><rect x="0" y="11" width="28" height="6" rx="3" fill="white"/></svg>
 
     <div class="hero__content" id="paraContent">
-      <div class="hero__pill">
-        <span class="hero__pill-dot"></span>
-        Trusted by 50,000+ patients
-      </div>
       <h1 class="hero__h1">
         Healthcare that<br>
         <span>keeps up with you</span>
@@ -793,26 +771,6 @@
     </div>
   </section>
 
-  <!-- STATS BAR -->
-  <div class="stats">
-    <div class="stat-item reveal">
-      <div class="stat-num">50k+</div>
-      <div class="stat-label">Active patients</div>
-    </div>
-    <div class="stat-item reveal reveal-delay-1">
-      <div class="stat-num">1,200+</div>
-      <div class="stat-label">Verified doctors</div>
-    </div>
-    <div class="stat-item reveal reveal-delay-2">
-      <div class="stat-num">98%</div>
-      <div class="stat-label">Satisfaction rate</div>
-    </div>
-    <div class="stat-item reveal reveal-delay-3">
-      <div class="stat-num">24/7</div>
-      <div class="stat-label">Always available</div>
-    </div>
-  </div>
-
   <!-- WAVE -->
   <div class="wave-divider" style="background:var(--green-dark)">
     <svg viewBox="0 0 1440 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -820,15 +778,45 @@
     </svg>
   </div>
 
+  <!-- LOGIN SECTION (moved up — directly below hero / Get started) -->
+  <section class="login-section" id="login">
+    <div class="login-inner">
+      <p class="section__label">Ready to start?</p>
+      <h2 class="section__title">Log in to Medfinity</h2>
+      <p class="section__body">Access your dashboard, appointments, and health records.</p>
+
+      <div class="auth__card reveal">
+        <h1>Welcome back</h1>
+        <p class="sub">Log in to pick up where you left off.</p>
+
+        <div class="form-error" id="loginError"></div>
+
+        <form id="loginForm">
+          <div class="field">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" autocomplete="username" required placeholder="Enter your username">
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Enter your password">
+          </div>
+          <button class="btn btn--primary btn--block" type="submit" id="loginBtn">Log in</button>
+        </form>
+
+        <div class="auth__footer">New to Medfinity? <a href="register.html">Create an account</a></div>
+      </div>
+    </div>
+  </section>
+
   <!-- FEATURE 1 — Patient Dashboard -->
-  <section class="section section--alt" id="features">
+  <section class="section section--alt" id="about">
     <div class="two-col">
       <div class="reveal">
         <p class="section__label">For patients</p>
         <h2 class="section__title">Your complete health picture, always accessible</h2>
         <p class="section__body">Track vitals, view medical history, manage prescriptions, and schedule appointments — no more paper trails or phone queues.</p>
         <a href="#login" class="btn btn--primary" style="display:inline-flex;gap:8px;">
-          Access your records
+          Book an appointment
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
       </div>
@@ -920,7 +908,7 @@
   </div>
 
   <!-- DARK SECTION — Pharmacy + Testimonial -->
-  <section class="section section--dark" id="how-it-works">
+  <section class="section section--dark">
     <div class="two-col" style="margin-bottom:80px">
       <div class="reveal">
         <p class="section__label">Pharmacy network</p>
@@ -962,7 +950,6 @@
       <p class="testi-text">
         Medfinity changed how I manage my parents' health. I can track their appointments, see lab results, and speak to their doctor on video — all without leaving home.
       </p>
-      <p class="testi-author"><strong>Kavitha Nair</strong> · Caregiver, Chennai</p>
     </div>
   </section>
 
@@ -974,7 +961,7 @@
   </div>
 
   <!-- FEATURES GRID -->
-  <section class="section section--alt">
+  <section class="section section--alt" id="features">
     <div class="features-grid">
       <div class="features-grid__header reveal">
         <p class="section__label" style="text-align:center">Everything you need</p>
@@ -1017,44 +1004,6 @@
     </div>
   </section>
 
-  <!-- WAVE -->
-  <div class="wave-divider" style="background:#e8f5ee">
-    <svg viewBox="0 0 1440 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0,30 C480,56 960,0 1440,20 L1440,56 L0,56 Z" fill="#e8f5ee"/>
-    </svg>
-  </div>
-
-  <!-- LOGIN SECTION -->
-  <section class="login-section" id="login">
-    <div class="login-inner">
-      <p class="section__label">Ready to start?</p>
-      <h2 class="section__title">Log in to Medfinity</h2>
-      <p class="section__body">Access your dashboard, appointments, and health records.</p>
-
-      <div class="auth__card reveal">
-        <div class="auth__mark">M</div>
-        <h1>Welcome back</h1>
-        <p class="sub">Log in to pick up where you left off.</p>
-
-        <div class="form-error" id="loginError"></div>
-
-        <form id="loginForm">
-          <div class="field">
-            <label for="username">Username</label>
-            <input id="username" name="username" type="text" autocomplete="username" required placeholder="Enter your username">
-          </div>
-          <div class="field">
-            <label for="password">Password</label>
-            <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Enter your password">
-          </div>
-          <button class="btn btn--primary btn--block" type="submit" id="loginBtn">Log in</button>
-        </form>
-
-        <div class="auth__footer">New to Medfinity? <a href="register.html">Create an account</a></div>
-      </div>
-    </div>
-  </section>
-
   <!-- FOOTER -->
   <footer class="footer">
     <p>© 2026 <strong>Medfinity</strong> · Healthcare, reimagined · All rights reserved</p>
@@ -1073,6 +1022,17 @@
     const paraOrb3    = document.getElementById('paraOrb3');
     const paraContent = document.getElementById('paraContent');
     const nav         = document.getElementById('mainNav');
+    const navToggle   = document.getElementById('navToggle');
+    if (navToggle) {
+      navToggle.addEventListener('click', () => {
+        const isOpen = nav.classList.toggle('is-open');
+        navToggle.setAttribute('aria-expanded', String(isOpen));
+      });
+      nav.querySelectorAll('.nav__links a').forEach(a => a.addEventListener('click', () => {
+        nav.classList.remove('is-open');
+        navToggle.setAttribute('aria-expanded', 'false');
+      }));
+    }
 
     let ticking = false;
     window.addEventListener('scroll', () => {
